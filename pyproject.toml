@@ -1,17 +1,24 @@
 [tool.poetry]
 name = "moduli-assembly"
-version = "0.3.0"
+version = "0.3.1"
 description = "Command Line Utility to build complete [/usr/local]/etc/ssh/moduli_file"
 authors = ["Ron Williams <becker.wiliams@gmail.com>"]
+
 readme = "README.md"
 packages = [
-    { include = "moduli_assembly"},
-    { include = "moduli_assembly/scripts"},
-    { include = "data"}
+    { include = "moduli_assembly" },
+    { include = "moduli_assembly/scripts" }
 ]
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/beckerwilliams/ssh-moduli-builder"
+Documentation = "https://github.com/beckerwilliams/ssh-moduli-builder/README.md"
+Repository = "https://github.com/beckerwilliams/ssh-moduli-builder.git"
+Issues = "https://github.com/beckerwilliams/ssh-moduli-builder/issues"
 
 
 [build-system]

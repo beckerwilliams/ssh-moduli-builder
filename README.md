@@ -9,7 +9,7 @@ Scripts to generate [/usr/local]/etc/ssh/moduli files
 
 
 ## Installation
-```pip install ./moduli_assembly-0.3.0-py3-none-any.whl```
+```pip install ./moduli_assembly-<version>-py3-none-any.whl```
 
 ## Usage
 ```python -m moduli_assembly -a, --all```
@@ -28,10 +28,31 @@ Build Moduli for each bitsize given. Multiple Entries provide Multiple Runs
 - example `python -m moduli_assembly --restart`
 - _Completes Screening of Any Interrupted Screening Runs_
 
-``` python -m moduli_assembly -w, --write```
+```python -m moduli_assembly -w, --write```
 
 - example `python -m moduli_assembly --write`
 - _Writes out SSH MODULI File from Existing Safe Primes_
+
+## Examples
+In order to build a sufficiently diverse SSH Moduli file, we need 4 runs of EACH bitsize.
+The following Shell Scripts will start 4 process in parallel, and produce a Complete SSH Moduli File with over 
+75 entries for each bitsize.
+
+moduli-assembly will take about 1 Week to produce a complete File on an 4 Core Intel i7 processor.
+
+### Export Shell Scripts
+``
+#### Export(C Shell (csh) Utility
+```python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh```
+
+#### Export Bourne Again Shell (bash)
+```python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh```
+
+##### Set Execute Bit on Scripts
+`chmod +x ./build_moduli_file.*sh`
+
+##### Run
+`./build_moduli_file.[c]sh >& all.gen.log&`
 
 ## License
 MIT License
