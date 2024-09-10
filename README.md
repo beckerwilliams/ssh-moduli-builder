@@ -1,39 +1,90 @@
 # SSH Moduli File Generator
 
-Scripts to generate [/usr/local]/etc/ssh/moduli files
+Scripts to generate [/usr/local]/etc/ssh/moduli file
+
+## Overview
+OpenSSH provides moduli generation capabilities via `ssh-keygen`.
+Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides a simple means to create an secure, complete, and sufficient MODULI for Secure SSH Operation.
+
+One run w option `-a` produces about 25% of the secure moduli from which to build the file. Run 4 times to create COMPLETE file.
+
+Scripts included in module will run 4 jobs in parallel, producing a modulus file with 80 or more moduli per keylength. 
+
+_This takes about a Week to Complete on an Intel i7 Quad-Core Chip)_
+
+
+- Builds Complete file With One Command
+  - python -m moduli_assembly --all
+- Provides Scripts for managing parallel build of moduli
+  - bash: python -m moduli.scripts.export_bash_runner > moduli_runner.sh
+  - csh: python -m moduli.scripts.export_csh_runner > moduli_runner.csh
+  - chmod +x moduli_runner.*sh
+  - ./moduli_runner.[c]sh&
+
+The last command causes 4 threads to start, resulting in a secure, complete, and sufficient /etc/ssh/moduli file, in about a week.
 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
 
-
 ## Installation
-```pip install ./moduli_assembly-<version>-py3-none-any.whl```
 
-## Usage
-```python -m moduli_assembly -a, --all```
+### Platform Dependencies
+SSH Moduli Generator depends on the SSH being installed and ssh-keygen available for Moduli production.
 
-Builds SSH Moduli File with All AUthorized Bitsizes: 
-- 2048, 3072, 4096, 6144, 7680, 8192
+### Install Wheel
 
-```python -m moduli_assembly -b, --bitsizes <bitsize> [<bitsize> [...]]```
+In a working directory, Create a python virtual environment, install ssh-moduli-builder wheel, run.
+- Create Virtual Environment
+  - `python -m venv .venv  # Create Virtual Environment` 
+- Activate
+  - Bash:    `source .venv/bin/activate.sh`
+  - C-Shell: `source .venv/bin/activate.csh`
+- Install Wheel
+
+    -```pip install ./moduli_assembly-<version>-py3-none-any.whl```
+
+## Usage 
+### --all, -a
+
+Produce One Full Moduli Set
+
+    `python -m moduli_assembly --all`
+
+_Builds SSH Moduli File with All Authorized Bitsizes:_ 
+
+- _2047, 3071, 4095, 6143, 7679, 8191`_
+
+### --bitsizes, -b
+
+Produces Moduli with Selected Bitsizes
+
+`python -m moduli_assembly --bitsizes <bitsize> [<bitsize> [...]]`
 Build Moduli for each bitsize given. Multiple Entries provide Multiple Runs
 
-- example `python -m moduli_assembly --bitsizes 2048 2048 3072 4096`
+Example 
+
+`python -m moduli_assembly --bitsizes 2048 2048 3072 4096`
 - _Two Runs of '2048', one of '3072', one of '4096'_
 
-```python -m moduli_assembly -r, --restart```
+### --restart, -r
 
-- example `python -m moduli_assembly --restart`
+Restart previously interrupted Screening Run
+
+Example
+
+`python -m moduli_assembly --restart`
 - _Completes Screening of Any Interrupted Screening Runs_
 
-```python -m moduli_assembly -w, --write```
+### --write, -w
 
-- example `python -m moduli_assembly --write`
+Example
+
+`python -m moduli_assembly --write`
 - _Writes out SSH MODULI File from Existing Safe Primes_
 
-## Examples
+## Utility Scripts
 In order to build a sufficiently diverse SSH Moduli file, we need 4 runs of EACH bitsize.
 The following Shell Scripts will start 4 process in parallel, and produce a Complete SSH Moduli File with over 
 75 entries for each bitsize.
@@ -41,17 +92,21 @@ The following Shell Scripts will start 4 process in parallel, and produce a Comp
 moduli-assembly will take about 1 Week to produce a complete File on an 4 Core Intel i7 processor.
 
 ### Export Shell Scripts
-``
+
 #### Export(C Shell (csh) Utility
+
 ```python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh```
 
 #### Export Bourne Again Shell (bash)
+
 ```python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh```
 
 ##### Set Execute Bit on Scripts
+
 `chmod +x ./build_moduli_file.*sh`
 
-##### Run
+##### Build Complete Moduli File
+
 `./build_moduli_file.[c]sh >& all.gen.log&`
 
 ## License

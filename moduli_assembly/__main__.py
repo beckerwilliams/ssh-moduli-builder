@@ -8,10 +8,10 @@ from pathlib import PosixPath as Path
 from random import shuffle
 
 # Constants
-MODULI_DIR = Path('MODULI')  # Location of MODULI Directory
-MODULI_FILE = Path("MODULI_PROTO")
 GENERATOR_TYPE = 2
 AUTH_BITSIZES = {'2048', '3072', '4096', '6144', '7680', '8192'}
+MODULI_DIR = Path('MODULI')  # Location of MODULI Directory
+MODULI_FILE = Path("MODULI_PROTO")
 
 
 def create_moduli_dir() -> None:
@@ -25,12 +25,14 @@ def ISO_UTC_TIMESTAMP() -> str:
 
 def cl_args():
     parser = ArgumentParser(description='Moduli Assembly')
-    parser.add_argument('-a', '--all', action='store_true',
-                        help='Minimally Sufficient and Safe Moduli File. (Run Four in Parallel)!')
-    parser.add_argument('-b', '--bitsizes', nargs='*', help='space delimited list of requested bitsizes',
-                        required=False)
-    parser.add_argument('-w', '--write_moduli', action='store_true', help='Write Moduli from Current Screened')
-    parser.add_argument('-r', '--restart', action='store_true', help='Restart Interrupted Moduli Screening')
+    parser.add_argument('-a', '--all',
+                        action='store_true', help='Minimally Sufficient and Safe Moduli File. (Run Four in Parallel)!')
+    parser.add_argument('-w', '--write_moduli',
+                        action='store_true', help='Write Moduli from Current Screened')
+    parser.add_argument('-r', '--restart',
+                        action='store_true', help='Restart Interrupted Moduli Screening')
+    parser.add_argument('-b', '--bitsizes',
+                        nargs='*', help='space delimited list of requested bitsizes', required=False)
     return parser.parse_args()
 
 
