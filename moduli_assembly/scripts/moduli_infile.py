@@ -1,34 +1,39 @@
-#!/usr/bin/env python3
-from pathlib import PosixPath as Path
+#!/usr/bin/env python
 from argparse import ArgumentParser
+from pathlib import PosixPath as Path
 
 
-
-
-def mi_args():
-    parser = ArgumentParser(description='SSH Moduli Modulus Distribution')
-    parser.add_argument('modulus', type=str, default="/etc/ssh/moduli")
+def args():
+    parser = ArgumentParser(description='Moduli In File')
+    parser.add_argument('-f', '--file', type=str, default='/etc/ssh/moduli', help='moduli_infile <moduli_file')
     return parser.parse_args()
 
 
-def moduli_infile(file='/etc/ssh/moduli'):
-    bit_sizes = {"2047": 0, "3071": 0, "4095": 0, "6143": 0, "7679": 0, "8191": 0}
-    mod_file = Path(file)
-    mod_lst = mod_file.read_text().split('\n')
+def moduli_infile(infile):
+    authorized_bitsizes = (2047, 3071, 4095, 6143, 7679, 8191)
+    bitsizes = {}
+    for bs in authorized_bitsizes:
+        bitsizes[str(bs)] = 0
 
-    for line in mod_lst:
+    lines = infile.read_text().split('\n')
+    for line in lines:
         if line.startswith('#') or line.startswith(' '):
             continue
-        keylength = line.split(' ')
-        if keylength[4] in bit_sizes:
-            bit_sizes[keylength[4]] += 1
+        # Skip Comment and Blank Lines, Bypasses MODULI Header Line
+        if line:
+            bitsizes[line.split(' ')[4]] += 1
 
-    return bit_sizes, mod_file
+    return bitsizes
+
+
+def main():
+    largs = args()
+    freq_table = moduli_infile(Path(largs.file))
+    print(f'\nModulus Frequency of {largs.file}:')
+    print(f'Mod  Count')
+    for modulus in freq_table:
+        print(modulus, freq_table[modulus])
 
 
 if __name__ == '__main__':
-    args = mi_args()
-    (counts, fn) = moduli_infile(args.modulus)
-    print(f'Moduli in {fn}:')
-    for count in counts:
-        print(f'\t{count}: {counts[count]}')
+    exit(main())

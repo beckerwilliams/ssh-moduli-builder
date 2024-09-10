@@ -93,21 +93,33 @@ moduli-assembly will take about 1 Week to produce a complete File on an 4 Core I
 
 ### Export Shell Scripts
 
-#### Export(C Shell (csh) Utility
+#### Export Moduli Builders
 
-```python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh```
+##### C Shell (csh)
 
-#### Export Bourne Again Shell (bash)
+`python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh`
 
-```python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh```
+##### Bourne Again Shell (bash)
+
+`python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh`
+
+#### Export Moduli Frequency in File
+
+##### moduli_infile (bash)
+
+`python -m moduli_assembly.scripts.export_moduli_infile > moduli_infile.sh`
 
 ##### Set Execute Bit on Scripts
 
 `chmod +x ./build_moduli_file.*sh`
 
-##### Build Complete Moduli File
+##### Build Moduli File
+Creates a minimal Moduli File, with about 25% of the required entries. 
 
 `./build_moduli_file.[c]sh >& all.gen.log&`
+
+4 Runs creates a complete and sufficiently diverse file. 
+Use script builder(s) above for parallel runs.
 
 ## License
 MIT License
