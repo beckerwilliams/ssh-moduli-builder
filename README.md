@@ -13,7 +13,9 @@ Scripts to generate well constructed moduli file
 
 ## Platform Depenencies
 OpenSSH ssh-keygen
-Python >3.7
+Python version >=3.7
+OpenSSH version >=9.7p1
+OpenSSL version >=3.0.14
 
 ## Overview
 OpenSSH provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
