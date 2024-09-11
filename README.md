@@ -2,30 +2,38 @@
 
 Scripts to generate [/usr/local]/etc/ssh/moduli file
 
+
+## Platform Depenencies
+OpenSSH ssh-keygen
+
 ## Overview
-OpenSSH provides moduli generation capabilities via `ssh-keygen`.
-Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides a simple means to create an secure, complete, and sufficient MODULI for Secure SSH Operation.
+OpenSSH provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
+Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides the means to generate a complete moduli file with similar distributions across moduli.
+Each run of ssh-keygen will produce about 25% of the moduli needed for a complete file. The included scripts, `export_bash_builder` and `export_csh_builder`, will launch 4 runs of `moduli-assembly` in parallel, sufficient to produce a complete ssh moduli file.
 
-One run w option `-a` produces about 25% of the secure moduli from which to build the file. Run 4 times to create COMPLETE file.
+Note: _This takes about a Week to Complete on an Intel i7 Quad-Core Chip)_
 
-Scripts included in module will run 4 jobs in parallel, producing a modulus file with 80 or more moduli per keylength. 
-
-_This takes about a Week to Complete on an Intel i7 Quad-Core Chip)_
-
+### Capabilities
 
 - Builds Complete file With One Command
   - python -m moduli_assembly --all
-- Provides Scripts for managing parallel build of moduli
-  - bash: python -m moduli.scripts.export_bash_runner > moduli_runner.sh
-  - csh: python -m moduli.scripts.export_csh_runner > moduli_runner.csh
-  - chmod +x moduli_runner.*sh
-  - ./moduli_runner.[c]sh&
 
-The last command causes 4 threads to start, resulting in a secure, complete, and sufficient /etc/ssh/moduli file, in about a week.
+
+- Provides Scripts for managing parallel build of moduli
+  
+  - bash: `python -m moduli.scripts.export_bash_runner > moduli_runner.sh`
+  
+  - csh: `python -m moduli.scripts.export_csh_runner > moduli_runner.csh`
+  
+  - set execute bit: `chmod +x moduli_runner.*sh`
+  
+  - build moduli file: `./moduli_runner.[c]sh&`
+
 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
+- [Utility Scripts](#Utility Scripts)
 - [License](#license)
 
 ## Installation
@@ -61,7 +69,8 @@ _Builds SSH Moduli File with All Authorized Bitsizes:_
 Produces Moduli with Selected Bitsizes
 
 `python -m moduli_assembly --bitsizes <bitsize> [<bitsize> [...]]`
-Build Moduli for each bitsize given. Multiple Entries provide Multiple Runs
+
+_Build Moduli for each bitsize given. Multiple Entries provide Multiple Runs_
 
 Example 
 
@@ -89,37 +98,80 @@ In order to build a sufficiently diverse SSH Moduli file, we need 4 runs of EACH
 The following Shell Scripts will start 4 process in parallel, and produce a Complete SSH Moduli File with over 
 75 entries for each bitsize.
 
-moduli-assembly will take about 1 Week to produce a complete File on an 4 Core Intel i7 processor.
+`moduli-assembly` will take about 1 Week to produce a complete File on an 4 Core Intel i7 processor.
 
 ### Export Shell Scripts
 
-#### Export Moduli Builders
-
-##### C Shell (csh)
+##### C Shell (csh) Moduli Runner
 
 `python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh`
 
-##### Bourne Again Shell (bash)
+##### Bourne Again Shell (bash) Moduli Runer
 
 `python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh`
-
-#### Export Moduli Frequency in File
-
-##### moduli_infile (bash)
-
-`python -m moduli_assembly.scripts.export_moduli_infile > moduli_infile.sh`
 
 ##### Set Execute Bit on Scripts
 
 `chmod +x ./build_moduli_file.*sh`
 
-##### Build Moduli File
-Creates a minimal Moduli File, with about 25% of the required entries. 
+### Build Complete Moduli File
+_Note: This takes about 7 Days on a Quad Core Intel i7_
 
-`./build_moduli_file.[c]sh >& all.gen.log&`
 
-4 Runs creates a complete and sufficiently diverse file. 
-Use script builder(s) above for parallel runs.
+#### bash (sh)
+
+`./build_moduli_file.sh > all.gen.log 2>&1 &`
+
+#### c-shell (csh)
+
+`./build_moduli_file.csh >& all.gen.log &`
+
+### Moduli Frequency Distribution
+
+`moduli-assembly` provides in module and an exportable bash script that will display the frequency of the moduli in any ssh moduli file.
+
+#### Export moduli_infile script and exec enable
+
+`python -m moduli_assembly.scripts.export_moduli_infile > moduli_infile.sh`
+
+Set exec bit on shell script: `chmod +x ./moduli_infile.sh`
+
+#### Moduli Infile Usage
+
+##### Bash Script
+
+`./moduli_infile.sh  # default moduli file /etc/ssh/moduli  # default`
+
+or
+
+`./moduli_infile.sh <MODULI_INFILE>` # default moduli file /etc/ssh/moduli # default
+
+##### moduli-assembly
+
+`python -m moduli_assembly.scripts.moduli_infile # default: /etc/ssh/moduli`
+
+or
+
+`python -m moduli_assembly.scripts.moduli_infile --file <SSH_MODULI_FILE>  # selected moduli file`
+
+
+######   Moduli Infile Response
+
+  Modulus Frequency of /etc/ssh/moduli:
+
+    Mod  Count
+
+    2047 92
+
+    3071 80
+
+    4095 94
+
+    6143 87
+
+    7679 108
+
+    8191 117
 
 ## License
 MIT License

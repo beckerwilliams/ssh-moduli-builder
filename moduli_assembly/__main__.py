@@ -9,7 +9,7 @@ from random import shuffle
 
 # Constants
 GENERATOR_TYPE = 2
-AUTH_BITSIZES = {'2048', '3072', '4096', '6144', '7680', '8192'}
+AUTH_BITSIZES = ('2048', '3072', '4096', '6144', '7680', '8192')
 MODULI_DIR = Path('MODULI')  # Location of MODULI Directory
 MODULI_FILE = Path("MODULI_PROTO")
 
