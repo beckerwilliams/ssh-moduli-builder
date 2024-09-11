@@ -1,17 +1,26 @@
-# SSH Moduli File Generator
+# SSH Moduli File Generator `moduli-assembly`
 
-Scripts to generate [/usr/local]/etc/ssh/moduli file
+Scripts to generate well constructed moduli file
 
+            [_/usr/local_]/etc/ssh/moduli
+ 
+## Table of Contents
+- [Platform Dependencies](#platform-dependencies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Utility Scripts](#utility-scripts)
+- [License](#license)
 
 ## Platform Depenencies
 OpenSSH ssh-keygen
+Python >3.7
 
 ## Overview
 OpenSSH provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
 Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides the means to generate a complete moduli file with similar distributions across moduli.
 Each run of ssh-keygen will produce about 25% of the moduli needed for a complete file. The included scripts, `export_bash_builder` and `export_csh_builder`, will launch 4 runs of `moduli-assembly` in parallel, sufficient to produce a complete ssh moduli file.
 
-Note: _This takes about a Week to Complete on an Intel i7 Quad-Core Chip)_
+Note: _Elapsed time for complete run is about 7 **days** on an Intel Quad Core i7_
 
 ### Capabilities
 
@@ -29,12 +38,6 @@ Note: _This takes about a Week to Complete on an Intel i7 Quad-Core Chip)_
   
   - build moduli file: `./moduli_runner.[c]sh&`
 
-
-## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [Utility Scripts](#Utility Scripts)
-- [License](#license)
 
 ## Installation
 
@@ -195,5 +198,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
