@@ -7,16 +7,11 @@ from datetime import datetime, timezone
 from pathlib import PosixPath as Path
 from random import shuffle
 
-# Constants
-GENERATOR_TYPE = 2
-AUTH_BITSIZES = ('2048', '3072', '4096', '6144', '7680', '8192')
-MODULI_DIR = Path('MODULI')  # Location of MODULI Directory
-MODULI_FILE = Path("MODULI_PROTO")
+from moduli_assembly.moduli_assembly_conf import load_conf
 
 
-def create_moduli_dir() -> None:
-    if not MODULI_DIR.exists():
-        MODULI_DIR.mkdir(parents=True, exist_ok=True)
+def create_moduli_dir(conf) -> None:
+    conf["MODULI_DIR"].mkdir(parents=True, exist_ok=True)
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -33,31 +28,34 @@ def cl_args():
                         action='store_true', help='Restart Interrupted Moduli Screening')
     parser.add_argument('-b', '--bitsizes',
                         nargs='*', help='space delimited list of requested bitsizes', required=False)
+    parser.add_argument('-m', '--moduli-dir', default=Path.home().joinpath('.moduli-assembly'))
+    parser.add_argument('-f', '--moduli_file', default=Path.home().joinpath(".moduli-assembly/MODULI_FILE"),
+                        help='Select Moduli File Path, default=$HOME/.moduli-assembly')
     return parser.parse_args()
 
 
-def get_candidate_path(bitsize: int) -> Path:
-    p = Path(f'{MODULI_DIR}/{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
+def get_candidate_path(bitsize: int, conf: dict) -> Path:
+    p = conf["MODULI_DIR"].joinpath(f'{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
     p.touch()  # Assure Empty File Exists
     return p
 
 
-def get_screened_path(candidate_path: Path) -> Path:
-    return MODULI_DIR.joinpath(Path(candidate_path.name.replace('candidate', 'screened')))
+def get_screened_path(candidate_path: Path, conf: dict) -> Path:
+    return conf["MODULI_DIR"].joinpath(Path(candidate_path.name.replace('candidate', 'screened')))
 
 
-def screen_candidates(candidate_path: Path) -> None:
-    print(f'Screening {candidate_path} for Safe Primes (generator={GENERATOR_TYPE})')
-    cp_file = MODULI_DIR.joinpath(f'.{candidate_path.name}')
+def screen_candidates(candidate_path: Path, conf: dict) -> None:
+    print(f'Screening {candidate_path} for Safe Primes (generator={conf["MODULI_GENERATOR"]}')
+    cp_file = conf["MODULI_DIR"].joinpath(f'.{candidate_path.name}')
 
     try:
         screen_command = [
             'ssh-keygen',
             '-M', 'screen',
-            '-O', f'generator={GENERATOR_TYPE}',
+            '-O', f'generator={conf["GENERATOR_TYPE"]}',
             '-O', f'checkpoint={cp_file}',
             '-f', candidate_path,
-            get_screened_path(candidate_path)
+            get_screened_path(candidate_path, conf)
         ]
         subprocess.run(screen_command, text=True, check=True)
 
@@ -68,9 +66,9 @@ def screen_candidates(candidate_path: Path) -> None:
     candidate_path.unlink()
 
 
-def generate_candidates(key_length: int, count: int) -> Path:
+def generate_candidates(key_length: int, count: int, conf: dict) -> Path:
     print(f'Generating candidate files for keylength: {key_length}')
-    candidate_file = get_candidate_path(key_length)
+    candidate_file = get_candidate_path(key_length, conf)
 
     for _ in range(count):
 
@@ -96,13 +94,13 @@ def generate_candidates(key_length: int, count: int) -> Path:
     return candidate_file
 
 
-def write_moduli_file(mpath: Path) -> None:
+def write_moduli_file(mpath: Path, conf: dict) -> None:
     # print(f'Compiling MODULI File: {mpath.name}')
 
     # Collect Screened Moduli
     with mpath.open('w') as moduli_file:
         moduli_file.write(f'#/etc/ssh/moduli: DCRUNCH {ISO_UTC_TIMESTAMP()}\n')
-        moduli = [moduli for moduli in MODULI_DIR.glob("????.screened*")]
+        moduli = [moduli for moduli in conf["MODULI_DIR"].glob("????.screened*")]
         moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
         for modulus_file in moduli:
             # Shuffle Order of Screened Moduli Prior to Inclusion in Final MODULI File
@@ -113,9 +111,9 @@ def write_moduli_file(mpath: Path) -> None:
                 moduli_file.write('\n')  # Screened Files LACK Trailing NEWLINE
 
 
-def restart_candidate_screening() -> None:
-    for modulus_file in [moduli for moduli in MODULI_DIR.glob("????.candidate*")]:
-        screen_candidates(modulus_file)
+def restart_candidate_screening(conf) -> None:
+    for modulus_file in [moduli for moduli in conf["MODULI_DIR"].glob("????.candidate*")]:
+        screen_candidates(modulus_file, conf)
 
 
 def randomize_file_record_order(screened_fn: Path) -> None:
@@ -132,21 +130,22 @@ def main() -> None:
     args = cl_args()
     print(f'args: {args}')
 
+    conf = load_conf(moduli_dir=Path.home().joinpath(".moduli-assembly"))
+
     # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
-        write_moduli_file(MODULI_FILE)
-        print(f'Wrote moduli file, {MODULI_FILE}, and exiting.')
+        write_moduli_file(conf["MODULI_FILE"], conf)
+        print(f'Wrote moduli file, {conf["MODULI_FILE"]}, and exiting.')
         exit(0)
 
     if args.restart:
         print(f'Restarted candidate screening')
-        restart_candidate_screening()
+        restart_candidate_screening(conf)
         exit(0)
 
     # -a, --all trumps any provided bitsize parameters
-    bitsizes = None
     if args.all:
-        bitsizes = list(AUTH_BITSIZES)
+        bitsizes = list(conf["AUTH_BITSIZES"])
     elif args.bitsizes:
         bitsizes = args.bitsizes
     else:
@@ -156,31 +155,31 @@ def main() -> None:
     bitsizes.sort()  # We'll run in Increasing Order. The opposite (.reverse()) will take the LONGEST runs, first
 
     # Create MODULI Working Directory
-    create_moduli_dir()
+    create_moduli_dir(conf)
 
     # Validate that requested Bitsizes are in the list of acceptable values
     # and Apply Counts of Moduli found in Args
     run_bits = {}
     for bitsize in bitsizes:
 
-        if bitsize not in AUTH_BITSIZES:
+        if bitsize not in conf["AUTH_BITSIZES"]:
             print(f'Bitsize: {bitsize} is not Enabled')
             print('Enabled Bitsizes: "[-b [2048] [3072] [4096] [6144] [7680] [8192]]"')
             exit(1)
 
         run_bits[bitsize] = bitsizes.count(bitsize)
 
-    candidates = [generate_candidates(int(bitsize), int(run_bits[bitsize]))
+    candidates = [generate_candidates(int(bitsize), run_bits[bitsize], conf)
                   for bitsize in run_bits if run_bits[bitsize]]
 
     # Screen Candidates, Log Screened File Paths
-    with MODULI_DIR.joinpath('screened-files.txt').open('a') as cf:
+    with conf["MODULI_DIR"].joinpath('screened-files.txt').open('a') as cf:
         for candidate in candidates:
-            cf.write(f'Screened File: {get_screened_path(candidate)}\n')
-            screen_candidates(candidate)
+            cf.write(f'Screened File: {get_screened_path(candidate, conf)}\n')
+            screen_candidates(candidate, conf)
 
     # Create PROTO /etc/ssh/moduli File
-    write_moduli_file(MODULI_FILE)
+    write_moduli_file(conf["MODULI_FILE"], conf)
 
 
 if __name__ == '__main__':
