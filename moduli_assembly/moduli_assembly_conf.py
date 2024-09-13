@@ -3,7 +3,11 @@ from json import (dump, load)
 from pathlib import PosixPath as Path
 
 
+# TBD Configuration Editor
+
+
 def default_conf() -> dict:
+    # Default moduli-assembly Configuration
     return {
         "GENERATOR_TYPE": 2,
         "AUTH_BITSIZES": ["2048", "3072", "4096", "6144", "7680", "8192"],

@@ -23,6 +23,12 @@ This is Challenge #3
 `moduli-assembly` provides functionality in-module and via exportable shell scripts to generate complete moduli files with
 five steps:
 
+Preparation: Download project Wheel from Github
+
+`curl -G
+https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assembly-0.8.3-py3-none-any.whl
+-o moduli_assembly-0.8.3-py3-none-any.whl`
+
 1. Create and/or Startup Python venv
 
 `python -m venv .venv`
@@ -31,7 +37,7 @@ five steps:
 
 2. Install moduli-assembly _wheel_
 
-`pip install moduli_assembly-x.x.x.whl`
+`pip install moduli_assembly-0.8.1-py3-none-any.whl`
 
 3. Export Bash Build Script
 
@@ -47,7 +53,9 @@ five steps:
 
 6. When Complete, Check Frequency Distributio of Created Moduli
 
-`python -m moduli_assembly.scripts.moduli_infile -f ./MODULI_PROTO
+`python -m moduli_assembly.scripts.moduli_infile -f ${MODULI-ASSEMBLY-DIR}/MODULI_FILE`
+
+- where ${MODULI-ASSEMBLY} is ${HOME}/.moduli-assembly by default
 
 `
 
