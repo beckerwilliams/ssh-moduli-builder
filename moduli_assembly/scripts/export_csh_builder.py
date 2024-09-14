@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-print('''#!/bin/csh
+print('''#!/usr/bin/env csh
 
 set NICE="nice +15"
 set GEN_MODULI="python -m moduli_assembly"

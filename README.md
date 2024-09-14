@@ -2,7 +2,7 @@
 
 Scripts to generate well constructed moduli file
 
-            [_/usr/local_]/etc/ssh/moduli
+            /etc/ssh/moduli | /usr/local/etc/ssh/moduli | 'ssh-moduli' | ...
  
 ## Table of Contents
 - [Platform Dependencies](#platform-dependencies)
@@ -12,10 +12,10 @@ Scripts to generate well constructed moduli file
 - [License](#license)
 
 ## Platform Depenencies
-OpenSSH ssh-keygen
-Python version >=3.7
-OpenSSH version >=9.7p1
-OpenSSL version >=3.0.14
+- OpenSSH ssh-keygen
+- Python version >=3.7
+- OpenSSH version >=9.7p1
+- OpenSSL version >=3.0.14
 
 ## Overview
 OpenSSH provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
@@ -178,8 +178,29 @@ or
 
     8191 117
 
+#### Retrieve last generated MODULI file
+
+`python -m moduli-assembly -M > ssh-moduli`
+
+### Use Moduli File
+Locate your OpenSSH MODULI File
+- /etc/ssh/moduli
+- /usr/local/etc/moduli
+- etc.
+
+#### Export and Apply resulting MODULI FILE to Distribution
+`cp ssh-moduli /etc/ssh/moduli`
+
+or
+
+`cp ssh-moduli /usr/local/etc/ssh/moduli`
+
+#### That's It!
+
+____
+
 ## License
-MIT License
+### MIT License
 
 Copyright (c) 2024 Ron Williams, General Partner, Becker Williams Trading General Partnership
 

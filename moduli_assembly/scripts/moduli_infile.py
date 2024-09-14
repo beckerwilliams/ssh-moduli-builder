@@ -5,7 +5,8 @@ from pathlib import PosixPath as Path
 
 def args():
     parser = ArgumentParser(description='Moduli In File')
-    parser.add_argument('-f', '--file', type=str, default='/etc/ssh/moduli', help='moduli_infile <moduli_file')
+    parser.add_argument('-f', '--file', type=str, default='/etc/ssh/moduli',
+                        help='moduli_infile -f <moduli_file')
     return parser.parse_args()
 
 

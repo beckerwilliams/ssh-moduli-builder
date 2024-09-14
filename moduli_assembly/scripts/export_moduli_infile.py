@@ -10,8 +10,8 @@ echo "\nProcessing Moduli File: ${MODULI_FILE}"
 
 for moduli in 2047 3071 4095 6143 7679 8191
 do
-	count=`$GREP " $moduli " $MODULI_FILE | $WCL`
-	echo "${moduli}: ${count}"
+    count=`$GREP " $moduli " $MODULI_FILE | $WCL`
+    echo "${moduli}: ${count}"
 done
 
 ''')

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-print('''#!/bin/bash
+print('''#!/usr/bin/env bash
 
 NICE="nice +15"
 GEN_MODULI="python -m moduli_assembly"
