@@ -5,16 +5,25 @@ Scripts to generate well constructed moduli file
             /etc/ssh/moduli | /usr/local/etc/ssh/moduli | 'ssh-moduli' | ...
  
 ## Table of Contents
+
 - [Platform Dependencies](#platform-dependencies)
+
 - [Installation](#installation)
+
 - [Usage](#usage)
+
 - [Utility Scripts](#utility-scripts)
+
 - [License](#license)
 
-## Platform Depenencies
+## Platform Dependencies
+
 - OpenSSH ssh-keygen
+
 - Python version >=3.7
+
 - OpenSSH version >=9.7p1
+
 - OpenSSL version >=3.0.14
 
 ## Overview
@@ -54,16 +63,17 @@ In a working directory, Create a python virtual environment, install ssh-moduli-
 - Activate
   - Bash:    `source .venv/bin/activate.sh`
   - C-Shell: `source .venv/bin/activate.csh`
-- Install Wheel
 
-    -```pip install ./moduli_assembly-<version>-py3-none-any.whl```
+- Install Wheel 
+  - ```pip install ./moduli_assembly-<version>-py3-none-any.whl```
 
-## Usage 
+
+## Usage
 ### --all, -a
 
 Produce One Full Moduli Set
 
-    `python -m moduli_assembly --all`
+`python -m moduli_assembly --all`
 
 _Builds SSH Moduli File with All Authorized Bitsizes:_ 
 
@@ -115,7 +125,7 @@ The following Shell Scripts will start 4 process in parallel, and produce a Comp
 
 `python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh`
 
-##### Set Execute Bit on Scripts
+##### Set the `exec` bit on Scripts
 
 `chmod +x ./build_moduli_file.*sh`
 

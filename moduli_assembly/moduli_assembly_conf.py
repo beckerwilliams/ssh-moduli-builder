@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from json import (dumps, loads)
 from pathlib import PosixPath as Path
 
@@ -45,7 +45,7 @@ def save_conf(**kwargs: dict) -> dict:
     else:
         moduli_directory = Path.home().joinpath('.moduli-assembly')
 
-    # Identify configuration (and Convert Python 'Path' objects to 'str': pre_save_conf_filter
+    # Identify configuration (and Convert Python 'Path' objects to 'str': pre_save_conf_filter)
     if 'conf' in kwargs.keys():
         conf = pre_save_conf_filter(kwargs['conf'])
     else:
@@ -69,7 +69,7 @@ def load_conf(**kwargs: dict) -> dict:
         moduli_dir.joinpath('.moduli').mkdir(parents=True, exist_ok=True)
 
     # Verify Existing and Non-Empty config.json file
-    if not moduli_dir.joinpath('config.json').exists() or moduli_dir.joinpath('config.json').stat().st_size < 3:
+    if not moduli_dir.joinpath('config.json').exists() or moduli_dir.joinpath('config.json').stat().st_size < 8:
         return post_load_conf_filter(save_conf(conf=default_conf()))
     else:
         return post_load_conf_filter(loads(moduli_dir.joinpath('config.json').read_text()))
