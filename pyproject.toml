@@ -12,12 +12,12 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.urls]
 Homepage = "https://github.com/beckerwilliams/ssh-moduli-builder"
 Documentation = "https://github.com/beckerwilliams/ssh-moduli-builder/README.md"
 Repository = "https://github.com/beckerwilliams/ssh-moduli-builder.git"
 Issues = "https://github.com/beckerwilliams/ssh-moduli-builder/issues"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

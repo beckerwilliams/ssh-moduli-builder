@@ -1,4 +1,4 @@
-# SSH Moduli File Generator `moduli-assembly`
+# SSH2 Moduli File Generator `moduli-assembly`
 
 Scripts to generate well constructed moduli file
 
@@ -18,7 +18,7 @@ Scripts to generate well constructed moduli file
 
 ## Platform Dependencies
 
-- OpenSSH ssh-keygen
+- OpenSSH2 ssh-keygen, _supports `-M generate` and `-M screen`_
 
 - Python version >=3.7
 
@@ -27,7 +27,7 @@ Scripts to generate well constructed moduli file
 - OpenSSL version >=3.0.14
 
 ## Overview
-OpenSSH provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
+OpenSSH2 provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
 Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides the means to generate a complete moduli file with similar distributions across moduli.
 Each run of ssh-keygen will produce about 25% of the moduli needed for a complete file. The included scripts, `export_bash_builder` and `export_csh_builder`, will launch 4 runs of `moduli-assembly` in parallel, sufficient to produce a complete ssh moduli file.
 
@@ -53,7 +53,7 @@ Note: _Elapsed time for complete run is about 7 **days** on an Intel Quad Core i
 ## Installation
 
 ### Platform Dependencies
-SSH Moduli Generator depends on the SSH being installed and ssh-keygen available for Moduli production.
+SSH2 Moduli Generator depends on the SSH being installed and ssh-keygen available for Moduli production.
 
 ### Install Wheel
 
