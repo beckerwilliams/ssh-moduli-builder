@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import subprocess
 import tempfile
@@ -19,6 +19,7 @@ def create_moduli_dir(conf) -> Path:
         moduli_dir = Path.home().joinpath('.moduli-assembly/.moduli')
     else:
         moduli_dir = conf['MODULI_DIR'].joinpath('.moduli')
+
     # Include Moduli Candidates Sub-Directory in `mkdir`
     moduli_dir.joinpath('.moduli').mkdir(parents=True, exist_ok=True)
 
@@ -43,7 +44,7 @@ def cl_args():
     parser.add_argument('-c', '--clear-artifacts',
                         action='store_true',
                         help='Clear produced generated candidate and screening files and exit')
-    parser.add_argument('-C', '--remove-configuration-dir',
+    parser.add_argument('-C', '--remove-config-dir',
                         action='store_true',
                         help='Delete Configuration (MODULI_DIR)')
     parser.add_argument('-w', '--write_moduli',
@@ -66,7 +67,8 @@ def get_candidate_path(bitsize: int, conf: dict) -> Path:
 
 
 def get_screened_path(candidate_path: Path, conf: dict) -> Path:
-    return conf["MODULI_DIR"].joinpath('.moduli').joinpath(Path(candidate_path.name.replace('candidate', 'screened')))
+    return (conf["MODULI_DIR"].joinpath('.moduli')
+            .joinpath(Path(candidate_path.name.replace('candidate', 'screened'))))
 
 
 def screen_candidates(candidate_path: Path, conf: dict) -> None:
@@ -86,13 +88,15 @@ def screen_candidates(candidate_path: Path, conf: dict) -> None:
 
     except subprocess.CalledProcessError as e:
         print(f'Error screening candidates for {candidate_path.name.split(".")[0]} bit length: {e}')
+        exit(1)
 
     # We've screened the Candidates, Discard File
     candidate_path.unlink()
+    print(f'{candidate_path} Unlinked')
 
 
 def generate_candidates(key_length: int, count: int, conf: dict) -> Path:
-    print(f'Generating candidate files for keylength: {key_length}')
+    print(f'Generating candidate files for modulus size: {key_length}')
     candidate_file = get_candidate_path(key_length, conf)
 
     for _ in range(count):
@@ -115,6 +119,7 @@ def generate_candidates(key_length: int, count: int, conf: dict) -> Path:
 
         except subprocess.CalledProcessError as e:
             print(f'Error generating {key_length}-bit prime: {e}')
+            exit(1)
 
     return candidate_file
 
@@ -123,22 +128,27 @@ def write_moduli_file(path: Path, conf: dict) -> None:
     # Append Time Stamp to File
     ts = ISO_UTC_TIMESTAMP()
     mpath = Path('-'.join((str(path), ts)))
+
     # Save a Softlink to the Latest moduli file, simply named MODULI_FILE
-    path.symlink_to(mpath)
-    print(f'Compiling MODULI File: {mpath.name}')
+    if path.is_symlink():
+        path.unlink()
+        path.symlink_to(mpath)
+    else:
+        path.symlink_to(mpath)
+
+    print(f'Compiling MODULI File: {path.name} -> {mpath.name}')
 
     # Collect Screened Moduli
     with mpath.open('w') as moduli_file:
         moduli_file.write(f'#/etc/ssh/moduli: DCRUNCH {ts}\n')
         moduli = [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.screened*")]
         moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
+
         for modulus_file in moduli:
-            # Shuffle Order of Screened Moduli Prior to Inclusion in Final MODULI File
-            randomize_file_record_order(modulus_file)
-            # Write the moduli
-            with Path(modulus_file).open('r') as mf:
-                moduli_file.write(mf.read())
-                moduli_file.write('\n')  # Screened Files LACK Trailing NEWLINE
+            mf_lines = modulus_file.read_text().strip().split('\n')
+            shuffle(mf_lines)
+            moduli_file.write('\n'.join(mf_lines))
+            moduli_file.write('\n')  # Replace Termiating `newline` stripped on read
 
 
 def restart_candidate_screening(conf) -> None:
@@ -146,40 +156,39 @@ def restart_candidate_screening(conf) -> None:
         screen_candidates(modulus_file, conf)
 
 
-def randomize_file_record_order(screened_fn: Path) -> None:
-    print(f'Randomizing Bitsize Moduli File: {screened_fn}')
-    with screened_fn.open('r') as cf:
-        lines = cf.read().strip().split('\n')
-        shuffle(lines)
-    # Re-Write Screened File Entries with Randomized Order
-    with screened_fn.open('w') as cf:
-        cf.write('\n'.join(lines))
+def clear_artifacts(conf: dict) -> None:
+    for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
+        file.unlink()
+
+
+def rm_config_dir(conf: dict) -> None:
+    for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
+        file.unlink()
+    conf['MODULI_DIR'].joinpath('.moduli').rmdir()
+    for file in conf['MODULI_DIR'].glob('*'):
+        file.unlink()
+    conf['MODULI_DIR'].rmdir()
 
 
 def main() -> None:
     args = cl_args()
 
-    conf = load_conf(moduli_dir=args.moduli_dir)  # Load Default Configuration
+    conf = load_conf(moduli_dir=args.moduli_dir)  # Load Saved (default) Configuration
+
     if args.clear_artifacts:  # Delete and Recreate '.moduli'
-        for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
-            print(f'Cleared {file}')
-            file.unlink()
+        clear_artifacts(conf)
         exit(0)
 
-    if args.remove_configuration_dir:
-        for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
-            file.unlink()
-        conf['MODULI_DIR'].joinpath('.moduli').rmdir()
-        for file in conf['MODULI_DIR'].glob('*'):
-            file.unlink()
-        conf['MODULI_DIR'].rmdir()
+    if args.remove_config_dir:
+        rm_config_dir(conf)
+        exit(0)
 
     # Dump Latest MODULI_FILE to STDOUT
     if args.get_moduli_file:
         if not conf["MODULI_FILE"].exists():
             write_moduli_file(conf["MODULI_FILE"], conf)
             if not conf["MODULI_FILE"].exists():
-                print("Please Generate a New MODULI File, None Exists")
+                print("Please Generate a New MODULI Files, None Exist")
                 exit(1)
         print(conf['MODULI_FILE'].read_text())
         exit(0)

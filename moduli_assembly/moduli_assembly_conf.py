@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from json import (dump, load)
+from json import (dumps, loads)
 from pathlib import PosixPath as Path
 
 
@@ -18,18 +18,24 @@ def default_conf() -> dict:  # Default moduli-assembly Configuration
 
 def pre_save_conf_filter(conf: dict) -> dict:
     # Converts PATH Objects in Python Dict to Strings
+    new_conf = {}
     for prop in conf:
         if prop == 'MODULI_DIR' or prop == 'MODULI_FILE':
-            conf[prop] = str(conf[prop])
-    return conf
+            new_conf[prop] = str(conf[prop])
+        else:
+            new_conf[prop] = conf[prop]
+    return new_conf
 
 
 def post_load_conf_filter(conf: dict) -> dict:
     # Converts File Path STRING Objects to Python Path (pathlib) Objects
+    new_conf = {}
     for prop in conf:
         if prop == 'MODULI_DIR' or prop == 'MODULI_FILE':
-            conf[prop] = Path(conf[prop])
-    return conf
+            new_conf[prop] = Path(conf[prop])
+        else:
+            new_conf[prop] = conf[prop]
+    return new_conf
 
 
 def save_conf(**kwargs: dict) -> dict:
@@ -45,8 +51,7 @@ def save_conf(**kwargs: dict) -> dict:
     else:
         conf = pre_save_conf_filter(default_conf())
 
-    with moduli_directory.joinpath('config.json').open(mode='w') as conf_wfp:
-        dump(conf, conf_wfp, indent=4)
+    moduli_directory.joinpath('config.json').write_text(dumps(conf))
 
     return conf
 
@@ -62,11 +67,9 @@ def load_conf(**kwargs: dict) -> dict:
     # Verify Moduli Directory Exists (and contains subdirectory `.moduli`)
     if not moduli_dir.exists():
         moduli_dir.joinpath('.moduli').mkdir(parents=True, exist_ok=True)
+
     # Verify Existing and Non-Empty config.json file
-    if not moduli_dir.joinpath('config.json').exists() or moduli_dir.joinpath('config.json').stat().st_size == 0:
-        # We've no Config - Obtain Default, Save  and Use It
+    if not moduli_dir.joinpath('config.json').exists() or moduli_dir.joinpath('config.json').stat().st_size < 3:
         return post_load_conf_filter(save_conf(conf=default_conf()))
     else:
-        # We have a conf, lets use it
-        with moduli_dir.joinpath('config.json').open('r') as conf_rfp:
-            return post_load_conf_filter(load(conf_rfp))
+        return post_load_conf_filter(loads(moduli_dir.joinpath('config.json').read_text()))
