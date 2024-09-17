@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+__version__ = '0.9.6'
 
 import subprocess
 import tempfile
@@ -8,6 +9,7 @@ from pathlib import PosixPath as Path
 from random import shuffle
 
 from moduli_assembly.moduli_assembly_conf import load_conf
+
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -27,7 +29,7 @@ def create_moduli_dir(conf) -> Path:
 
 
 def cl_args():
-    parser = ArgumentParser(description='Moduli Assembly')
+    parser = ArgumentParser(prog='Moduli Assembly', description='Utility to automate creation of SSH2 Moduli Files')
     parser.add_argument('-b', '--bitsizes',
                         nargs='*',
                         help='space delimited list of requested bitsizes\n-b <keylength0> <keylength2> ...', )
@@ -37,16 +39,16 @@ def cl_args():
     parser.add_argument('-f', '--moduli_file',
                         default=Path.home().joinpath(".moduli-assembly/MODULI_FILE"),
                         help='Select Moduli File Path, default=$HOME/.moduli-assembly')
-    # Just Flags
+    # Just Flags, Execute and Exit
     parser.add_argument('-a', '--all',
                         action='store_true',
                         help='Minimally Sufficient and Safe Moduli File. (Run Four in Parallel)!')
     parser.add_argument('-c', '--clear-artifacts',
                         action='store_true',
-                        help='Clear produced generated candidate and screening files and exit')
+                        help='Clear Files: generated candidate and screening files.')
     parser.add_argument('-C', '--remove-config-dir',
                         action='store_true',
-                        help='Delete Configuration (MODULI_DIR)')
+                        help='Delete Configuration Directory (MODULI_DIR)')
     parser.add_argument('-w', '--write_moduli',
                         action='store_true',
                         help='Write Moduli from Current Screened Files and Exit')
@@ -56,7 +58,14 @@ def cl_args():
     parser.add_argument('-M', '--get-moduli-file',
                         action='store_true',
                         help='Dump Latest Moduli FIle to STDOUT')
-    return parser.parse_args()
+    parser.add_argument('-V', '--version',
+                        action='store_true',
+                        help='Display moduli-assembly version')
+    return parser
+
+
+def version() -> str:
+    return __version__
 
 
 def get_candidate_path(bitsize: int, conf: dict) -> Path:
@@ -140,7 +149,7 @@ def write_moduli_file(path: Path, conf: dict) -> None:
 
     # Collect Screened Moduli
     with mpath.open('w') as moduli_file:
-        moduli_file.write(f'#/etc/ssh/moduli: DCRUNCH {ts}\n')
+        moduli_file.write(f'#/etc/ssh/moduli: MODULI-ASSEMBLY: {ts}\n')
         moduli = [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.screened*")]
         moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
 
@@ -154,11 +163,14 @@ def write_moduli_file(path: Path, conf: dict) -> None:
 def restart_candidate_screening(conf) -> None:
     for modulus_file in [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.candidate*")]:
         screen_candidates(modulus_file, conf)
+    write_moduli_file(modulus_file, conf)
+    exit(0)
 
 
 def clear_artifacts(conf: dict) -> None:
     for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
         file.unlink()
+        exit(0)
 
 
 def rm_config_dir(conf: dict) -> None:
@@ -168,12 +180,19 @@ def rm_config_dir(conf: dict) -> None:
     for file in conf['MODULI_DIR'].glob('*'):
         file.unlink()
     conf['MODULI_DIR'].rmdir()
+    exit(0)
 
 
 def main() -> None:
-    args = cl_args()
+    parser = cl_args()
+
+    args = cl_args().parse_args()
 
     conf = load_conf(moduli_dir=args.moduli_dir)  # Load Saved (default) Configuration
+
+    if args.version:
+        print(f'{parser.prog}: Version: {version()}')
+        exit(0)
 
     if args.clear_artifacts:  # Delete and Recreate '.moduli'
         clear_artifacts(conf)
