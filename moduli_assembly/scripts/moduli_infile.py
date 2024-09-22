@@ -11,20 +11,24 @@ def args():
 
 
 def moduli_infile(infile):
-    authorized_bitsizes = (2047, 3071, 4095, 6143, 7679, 8191)
+    authorized_bitsizes = (3071, 4095, 6143, 7679, 8191)
     bitsizes = {}
     for bs in authorized_bitsizes:
         bitsizes[str(bs)] = 0
 
-    lines = infile.read_text().split('\n')
-    for line in lines:
-        if line.startswith('#') or line.startswith(' '):
-            continue
-        # Skip Comment and Blank Lines, Bypasses MODULI Header Line
-        if line:
-            bitsizes[line.split(' ')[4]] += 1
+    if infile.exists():
+        lines = infile.read_text().split('\n')
+        for line in lines:
+            if line.startswith('#') or line.startswith(' '):
+                continue
+            # Skip Comment and Blank Lines, Bypasses MODULI Header Line
+            if line:
+                bitsizes[line.split(' ')[4]] += 1
 
-    return bitsizes
+        return bitsizes
+    else:
+        print(f'Error: Provided moduli file, {infile.name}, Doesn\'t Exist')
+        exit(1)
 
 
 def main():

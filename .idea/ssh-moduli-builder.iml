@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.moduli-assembly" />
       <excludeFolder url="file://$MODULE_DIR$/MODULI" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (ssh-moduli-builder)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

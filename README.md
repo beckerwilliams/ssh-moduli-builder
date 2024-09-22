@@ -3,7 +3,7 @@
 Scripts to generate well constructed moduli file
 
             /etc/ssh/moduli | /usr/local/etc/ssh/moduli | 'ssh-moduli' | ...
- 
+
 ## Table of Contents
 
 - [Platform Dependencies](#platform-dependencies)
@@ -27,57 +27,62 @@ Scripts to generate well constructed moduli file
 - OpenSSL version >=3.0.14
 
 ## Overview
+
 OpenSSH2 provides moduli generation capabilities via on platform `OpenSSH ssh-keygen`.
-Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides the means to generate a complete moduli file with similar distributions across moduli.
-Each run of ssh-keygen will produce about 25% of the moduli needed for a complete file. The included scripts, `export_bash_builder` and `export_csh_builder`, will launch 4 runs of `moduli-assembly` in parallel, sufficient to produce a complete ssh moduli file.
+Rather than individually generating moduli across desired moduli key sizes, `SSH Moduli Generator` provides the means to
+generate a complete moduli file with similar distributions across moduli.
+Each run of ssh-keygen will produce about 25% of the moduli needed for a complete file. The included scripts,
+`export_bash_builder` and `export_csh_builder`, will launch 4 runs of `moduli-assembly` in parallel, sufficient to
+produce a complete ssh moduli file.
 
 Note: _Elapsed time for complete run is about 7 **days** on an Intel Quad Core i7_
 
 ### Capabilities
 
 - Builds Complete file With One Command
-  - python -m moduli_assembly --all
+    - python -m moduli_assembly --all
 
 
 - Provides Scripts for managing parallel build of moduli
-  
-  - bash: `python -m moduli.scripts.export_bash_runner > moduli_runner.sh`
-  
-  - csh: `python -m moduli.scripts.export_csh_runner > moduli_runner.csh`
-  
-  - set execute bit: `chmod +x moduli_runner.*sh`
-  
-  - build moduli file: `./moduli_runner.[c]sh&`
 
+    - bash: `python -m moduli.scripts.export_bash_runner > moduli_runner.sh`
+
+    - csh: `python -m moduli.scripts.export_csh_runner > moduli_runner.csh`
+
+    - set execute bit: `chmod +x moduli_runner.*sh`
+
+    - build moduli file: `./moduli_runner.[c]sh&`
 
 ## Installation
 
 ### Platform Dependencies
+
 SSH2 Moduli Generator depends on the SSH being installed and ssh-keygen available for Moduli production.
 
 ### Install Wheel
 
 In a working directory, Create a python virtual environment, install ssh-moduli-builder wheel, run.
+
 - Create Virtual Environment
-  - `python -m venv .venv  # Create Virtual Environment` 
+    - `python -m venv .venv  # Create Virtual Environment`
 - Activate
-  - Bash:    `source .venv/bin/activate.sh`
-  - C-Shell: `source .venv/bin/activate.csh`
+    - Bash:    `source .venv/bin/activate.sh`
+    - C-Shell: `source .venv/bin/activate.csh`
 
-- Install Wheel 
-  - ```pip install ./moduli_assembly-<version>-py3-none-any.whl```
-
+- Install Wheel
+    - ```pip install ./moduli_assembly-<version>-py3-none-any.whl```
 
 ## Usage
+
 ### --all, -a
 
 Produce One Full Moduli Set
 
 `python -m moduli_assembly --all`
 
-_Builds SSH Moduli File with All Authorized Bitsizes:_ 
+_Builds SSH Moduli File with All Authorized Bitsizes:_
 
-- _2047, 3071, 4095, 6143, 7679, 8191`_
+- _3071, 4095, 6143, 7679, 8191`_
 
 ### --bitsizes, -b
 
@@ -87,10 +92,11 @@ Produces Moduli with Selected Bitsizes
 
 _Build Moduli for each bitsize given. Multiple Entries provide Multiple Runs_
 
-Example 
+Example
 
-`python -m moduli_assembly --bitsizes 2048 2048 3072 4096`
-- _Two Runs of '2048', one of '3072', one of '4096'_
+`python -m moduli_assembly --bitsizes 3072 3072 4096`
+
+- _Two Runs of `3072`, one of `4096`_
 
 ### --restart, -r
 
@@ -99,6 +105,7 @@ Restart previously interrupted Screening Run
 Example
 
 `python -m moduli_assembly --restart`
+
 - _Completes Screening of Any Interrupted Screening Runs_
 
 ### --write, -w
@@ -106,11 +113,13 @@ Example
 Example
 
 `python -m moduli_assembly --write`
+
 - _Writes out SSH MODULI File from Existing Safe Primes_
 
 ## Utility Scripts
+
 In order to build a sufficiently diverse SSH Moduli file, we need 4 runs of EACH bitsize.
-The following Shell Scripts will start 4 process in parallel, and produce a Complete SSH Moduli File with over 
+The following Shell Scripts will start 4 process in parallel, and produce a Complete SSH Moduli File with over
 75 entries for each bitsize.
 
 `moduli-assembly` will take about 1 Week to produce a complete File on an 4 Core Intel i7 processor.
@@ -130,8 +139,8 @@ The following Shell Scripts will start 4 process in parallel, and produce a Comp
 `chmod +x ./build_moduli_file.*sh`
 
 ### Build Complete Moduli File
-_Note: This takes about 7 Days on a Quad Core Intel i7_
 
+_Note: This takes about 7 Days on a Quad Core Intel i7_
 
 #### bash (sh)
 
@@ -143,7 +152,8 @@ _Note: This takes about 7 Days on a Quad Core Intel i7_
 
 ### Moduli Frequency Distribution
 
-`moduli-assembly` provides in module and an exportable bash script that will display the frequency of the moduli in any ssh moduli file.
+`moduli-assembly` provides in module and an exportable bash script that will display the frequency of the moduli in any
+ssh moduli file.
 
 #### Export moduli_infile script and exec enable
 
@@ -169,14 +179,11 @@ or
 
 `python -m moduli_assembly.scripts.moduli_infile --file <SSH_MODULI_FILE>  # selected moduli file`
 
+###### Moduli Infile Response
 
-######   Moduli Infile Response
-
-  Modulus Frequency of /etc/ssh/moduli:
+Modulus Frequency of /etc/ssh/moduli:
 
     Mod  Count
-
-    2047 92
 
     3071 80
 
@@ -193,12 +200,15 @@ or
 `python -m moduli-assembly -M > ssh-moduli`
 
 ### Use Moduli File
+
 Locate your OpenSSH MODULI File
+
 - /etc/ssh/moduli
 - /usr/local/etc/moduli
 - etc.
 
 #### Export and Apply resulting MODULI FILE to Distribution
+
 `cp ssh-moduli /etc/ssh/moduli`
 
 or
@@ -209,7 +219,22 @@ or
 
 ____
 
+## Reference
+
+### SSH Audit
+
+[SSH Audit](https://github.com/jtesta/ssh-audit)
+
+### SSH Hardening Guides
+
+[SSH Hardening Guides](https://www.ssh-audit.com/hardening_guides.html)
+
+### HackTricks (SSH)
+
+[HackTricks](https://book.hacktricks.xyz/network-services-pentesting/pentesting-ssh)
+
 ## License
+
 ### MIT License
 
 Copyright (c) 2024 Ron Williams, General Partner, Becker Williams Trading General Partnership
@@ -231,3 +256,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+#  

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = '0.9.6'
+__version__ = '0.9.7'
 
 import subprocess
 import tempfile
@@ -9,7 +9,6 @@ from pathlib import PosixPath as Path
 from random import shuffle
 
 from moduli_assembly.moduli_assembly_conf import load_conf
-
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -57,10 +56,14 @@ def cl_args():
                         help='Restart Interrupted Moduli Screening. Ignores `-b <modulus size>`')
     parser.add_argument('-M', '--get-moduli-file',
                         action='store_true',
-                        help='Dump Latest Moduli FIle to STDOUT')
+                        help='Dump Latest Moduli File to STDOUT')
     parser.add_argument('-V', '--version',
                         action='store_true',
                         help='Display moduli-assembly version')
+    parser.add_argument('-D', '--moduli-distribution',
+                        action='store_true',
+                        desc='Frequency Distribution of Given Moduli File',
+                        help='-D, --model-distribution: Print Frequency Distribution of Given Moduli File')
     return parser
 
 
@@ -138,7 +141,7 @@ def write_moduli_file(path: Path, conf: dict) -> None:
     ts = ISO_UTC_TIMESTAMP()
     mpath = Path('-'.join((str(path), ts)))
 
-    # Save a Softlink to the Latest moduli file, simply named MODULI_FILE
+    # Save a Soft link to the Latest moduli file, simply named MODULI_FILE
     if path.is_symlink():
         path.unlink()
         path.symlink_to(mpath)
@@ -157,20 +160,21 @@ def write_moduli_file(path: Path, conf: dict) -> None:
             mf_lines = modulus_file.read_text().strip().split('\n')
             shuffle(mf_lines)
             moduli_file.write('\n'.join(mf_lines))
-            moduli_file.write('\n')  # Replace Termiating `newline` stripped on read
+            moduli_file.write('\n')  # Repl
+    exit(0)
 
 
 def restart_candidate_screening(conf) -> None:
     for modulus_file in [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.candidate*")]:
         screen_candidates(modulus_file, conf)
-    write_moduli_file(modulus_file, conf)
+        write_moduli_file(modulus_file, conf)
     exit(0)
 
 
 def clear_artifacts(conf: dict) -> None:
     for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
         file.unlink()
-        exit(0)
+    exit(0)
 
 
 def rm_config_dir(conf: dict) -> None:
