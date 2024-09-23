@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = '0.9.7'
+__version__ = '0.9.9'
 
 import subprocess
 import tempfile
@@ -8,23 +8,23 @@ from datetime import datetime, timezone
 from pathlib import PosixPath as Path
 from random import shuffle
 
-from moduli_assembly.moduli_assembly_conf import load_conf
+from moduli_assembly.config_manager.config_manager import ConfigManager
 
 
 def ISO_UTC_TIMESTAMP() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
 
 
-def create_moduli_dir(conf) -> Path:
-    if 'moduli_dir' not in conf:
-        moduli_dir = Path.home().joinpath('.moduli-assembly/.moduli')
-    else:
-        moduli_dir = conf['MODULI_DIR'].joinpath('.moduli')
-
-    # Include Moduli Candidates Sub-Directory in `mkdir`
-    moduli_dir.joinpath('.moduli').mkdir(parents=True, exist_ok=True)
-
-    return moduli_dir
+# def create_config_dir(conf) -> Path:
+#     if 'config_dir' not in conf:
+#         config_dir = Path.home().joinpath('.moduli-assembly/.moduli')
+#     else:
+#         config_dir = conf['config_dir'].joinpath('.moduli')
+#
+#     # Include Moduli Candidates Sub-Directory in `mkdir`
+#     config_dir.joinpath('.moduli').mkdir(parents=True, exist_ok=True)
+#
+#     return config_dir
 
 
 def cl_args():
@@ -35,8 +35,8 @@ def cl_args():
     parser.add_argument('-m', '--moduli-dir',
                         default=Path.home().joinpath('.moduli-assembly'),
                         help='Specify location of ./moduli-assembly')
-    parser.add_argument('-f', '--moduli_file',
-                        default=Path.home().joinpath(".moduli-assembly/MODULI_FILE"),
+    parser.add_argument('-f', '--config_file',
+                        default=Path.home().joinpath(".moduli-assembly/config_file"),
                         help='Select Moduli File Path, default=$HOME/.moduli-assembly')
     # Just Flags, Execute and Exit
     parser.add_argument('-a', '--all',
@@ -47,7 +47,7 @@ def cl_args():
                         help='Clear Files: generated candidate and screening files.')
     parser.add_argument('-C', '--remove-config-dir',
                         action='store_true',
-                        help='Delete Configuration Directory (MODULI_DIR)')
+                        help='Delete Configuration Directory (config_dir)')
     parser.add_argument('-w', '--write_moduli',
                         action='store_true',
                         help='Write Moduli from Current Screened Files and Exit')
@@ -62,8 +62,10 @@ def cl_args():
                         help='Display moduli-assembly version')
     parser.add_argument('-D', '--moduli-distribution',
                         action='store_true',
-                        desc='Frequency Distribution of Given Moduli File',
                         help='-D, --model-distribution: Print Frequency Distribution of Given Moduli File')
+    parser.add_argument('-x', '--export-config',
+                        action='store_true',
+                        help="Print running configuration")
     return parser
 
 
@@ -72,26 +74,26 @@ def version() -> str:
 
 
 def get_candidate_path(bitsize: int, conf: dict) -> Path:
-    p = conf["MODULI_DIR"].joinpath('.moduli')  # New Root of Candidate Files
+    p = conf["config_dir"].joinpath('.moduli')  # New Root of Candidate Files
     p = p.joinpath(f'{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
     p.touch()  # Assure Empty File Exists
     return p
 
 
 def get_screened_path(candidate_path: Path, conf: dict) -> Path:
-    return (conf["MODULI_DIR"].joinpath('.moduli')
+    return (conf["config_dir"].joinpath('.moduli')
             .joinpath(Path(candidate_path.name.replace('candidate', 'screened'))))
 
 
 def screen_candidates(candidate_path: Path, conf: dict) -> None:
-    print(f'Screening {candidate_path} for Safe Primes (generator={conf["GENERATOR_TYPE"]})')
-    checkpoint_file = conf["MODULI_DIR"].joinpath('.moduli').joinpath(f'.{candidate_path.name}')
+    print(f'Screening {candidate_path} for Safe Primes (generator={conf["generator_type"]})')
+    checkpoint_file = conf["config_dir"].joinpath('.moduli').joinpath(f'.{candidate_path.name}')
 
     try:
         screen_command = [
             'ssh-keygen',
             '-M', 'screen',
-            '-O', f'generator={conf["GENERATOR_TYPE"]}',
+            '-O', f'generator={conf["generator_type"]}',
             '-O', f'checkpoint={checkpoint_file}',
             '-f', candidate_path,
             get_screened_path(candidate_path, conf)
@@ -141,58 +143,54 @@ def write_moduli_file(path: Path, conf: dict) -> None:
     ts = ISO_UTC_TIMESTAMP()
     mpath = Path('-'.join((str(path), ts)))
 
-    # Save a Soft link to the Latest moduli file, simply named MODULI_FILE
-    if path.is_symlink():
-        path.unlink()
-        path.symlink_to(mpath)
-    else:
-        path.symlink_to(mpath)
-
-    print(f'Compiling MODULI File: {path.name} -> {mpath.name}')
-
     # Collect Screened Moduli
-    with mpath.open('w') as moduli_file:
-        moduli_file.write(f'#/etc/ssh/moduli: MODULI-ASSEMBLY: {ts}\n')
-        moduli = [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.screened*")]
+    with mpath.open('w') as config_file:
+        config_file.write(f'#/etc/ssh/moduli: moduli_assembly: {ts}\n')
+        moduli = [moduli for moduli in conf["config_dir"].joinpath('.moduli').glob("????.screened*")]
         moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
 
         for modulus_file in moduli:
             mf_lines = modulus_file.read_text().strip().split('\n')
             shuffle(mf_lines)
-            moduli_file.write('\n'.join(mf_lines))
-            moduli_file.write('\n')  # Repl
+            config_file.write('\n'.join(mf_lines))
+            config_file.write('\n')  # Repl
     exit(0)
 
 
 def restart_candidate_screening(conf) -> None:
-    for modulus_file in [moduli for moduli in conf["MODULI_DIR"].joinpath('.moduli').glob("????.candidate*")]:
+    for modulus_file in [moduli for moduli in conf["config_dir"].joinpath('.moduli').glob("????.candidate*")]:
         screen_candidates(modulus_file, conf)
         write_moduli_file(modulus_file, conf)
     exit(0)
 
 
 def clear_artifacts(conf: dict) -> None:
-    for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
+    for file in (conf['config_dir'].joinpath('.moduli')).glob('*'):
         file.unlink()
-    exit(0)
 
 
-def rm_config_dir(conf: dict) -> None:
-    for file in conf['MODULI_DIR'].joinpath('.moduli').glob('*'):
-        file.unlink()
-    conf['MODULI_DIR'].joinpath('.moduli').rmdir()
-    for file in conf['MODULI_DIR'].glob('*'):
-        file.unlink()
-    conf['MODULI_DIR'].rmdir()
-    exit(0)
+def default_config():
+    """
+    tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
+    :return:
+    :rtype:
+    """
+    return {
+        "generator_type": 2,
+        "auth_bitsizes": ["2048", "3072", "4096", "6144", "7680", "8192"],
+        "config_dir": ".moduli_assembly",
+        "config_file": ".config"
+    }
 
 
 def main() -> None:
+    # Process Arguments
     parser = cl_args()
+    args = parser.parse_args()
 
-    args = cl_args().parse_args()
-
-    conf = load_conf(moduli_dir=args.moduli_dir)  # Load Saved (default) Configuration
+    # Process Configuration File
+    cm = ConfigManager(default_config())
+    conf = cm.config
 
     if args.version:
         print(f'{parser.prog}: Version: {version()}')
@@ -203,29 +201,26 @@ def main() -> None:
         exit(0)
 
     if args.remove_config_dir:
-        rm_config_dir(conf)
+        del cm
         exit(0)
 
-    # Dump Latest MODULI_FILE to STDOUT
-    if args.get_moduli_file:
-        if not conf["MODULI_FILE"].exists():
-            write_moduli_file(conf["MODULI_FILE"], conf)
-            if not conf["MODULI_FILE"].exists():
-                print("Please Generate a New MODULI Files, None Exist")
-                exit(1)
-        print(conf['MODULI_FILE'].read_text())
+        # Dump Latest config_file to STDOUT
+    if args.export_config:
+        #
+        # print(conf['config_file'].read_text())
+        cm.print_config()
         exit(0)
 
     # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
-        write_moduli_file(conf["MODULI_FILE"], conf)
-        print(f'Wrote moduli file, {conf["MODULI_FILE"]}, and exiting.')
+        write_moduli_file(conf["config_file"], conf)
+        print(f'Wrote moduli file, {conf["config_file"]}, and exiting.')
         exit(0)
 
     if args.restart:
         print(f'Restarted candidate screening')
         restart_candidate_screening(conf)
-        write_moduli_file(conf["MODULI_FILE"], conf)
+        write_moduli_file(conf["config_file"], conf)
         exit(0)
 
     # -a, --all trumps any provided bitsize parameters
@@ -253,12 +248,12 @@ def main() -> None:
                   for bitsize in run_bits if run_bits[bitsize]]
 
     # Screen Candidates, Log Screened File Paths
-    with conf["MODULI_DIR"].joinpath('screened-files.txt').open('a') as cf:
+    with conf["config_dir"].joinpath('screened-files.txt').open('a') as cf:
         [cf.write(f'Screened File: {get_screened_path(candidate, conf)}\n') for candidate in candidates]
         [screen_candidates(candidate, conf) for candidate in candidates]
 
     # Create /etc/ssh/moduli file
-    write_moduli_file(conf["MODULI_FILE"], conf)
+    write_moduli_file(conf["config_file"], conf)
 
 
 if __name__ == '__main__':
