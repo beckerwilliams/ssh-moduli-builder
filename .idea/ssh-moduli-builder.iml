@@ -4,8 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.moduli-assembly" />
       <excludeFolder url="file://$MODULE_DIR$/MODULI" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (ssh-moduli-builder)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Poetry (ssh-moduli-builder) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

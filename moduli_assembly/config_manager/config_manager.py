@@ -7,8 +7,6 @@ from pathlib import PosixPath as Path
 #       The Config Directory will always be placed in User's HOME
 #
 # You can change either _def_dirname or _def_cfgname, Or supply your own config on __init__
-
-
 _def_dirname: str = '.bw_cfg'
 _def_cfgname: str = '.config'
 
@@ -42,6 +40,7 @@ def _enable_path_properties(config: dict) -> dict:
     :return: Configuration in File Format
     :rtype: dict
     """
+
     new_config = dict()
     for prop in config:
         if prop in _path_parameters():
@@ -93,3 +92,22 @@ class ConfigManager(object):
                 Path.home().joinpath(cls.config["config_dir"]).mkdir(exist_ok=True)
             # Save Configuration File
             config_file.write_text(dumps(config))
+
+    @classmethod
+    def __del__(cls, app_dir=None) -> None:
+        preserve_directories = [Path.home(), Path('/'), Path('/usr/local'), Path('/var'), Path('/var/log')]
+        if not app_dir:
+            app_dir = cls.config["config_dir"]
+
+        if app_dir in preserve_directories:
+            raise Exception(f'Preserved Directory Selected for Deletion: {app_dir}')
+        # Classic Recursive Deletion of a Hierarchy
+        for file in app_dir.glob('*'):
+            if file.is_file():
+                file.unlink()
+            elif file.is_dir():
+                cls.__del__(file)
+                file.rmdir()
+
+    def print_config(cls, path=None):
+        print(f'{cls.config}')

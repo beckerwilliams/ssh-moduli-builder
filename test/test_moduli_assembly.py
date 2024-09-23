@@ -35,7 +35,7 @@ class TestModuliAssemblyCore(TestCase):
         cls.cm = ConfigManager(default_config())
         cls.app_config = Path.home().joinpath('.moduli_assembly/.config').absolute()
 
-        create_faux_moduli(cls.cm.config['config_dir'])
+        # create_faux_moduli(cls.cm.config['config_dir'])  # FOR TESTING Clear Artifacts
 
     @classmethod
     def tearDown(cls) -> None:

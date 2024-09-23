@@ -1,8 +1,12 @@
-from json import loads
+from json import (loads)
 from pathlib import PosixPath as Path
-from unittest import TestCase
+from unittest import TestCase, mock
 
-from moduli_assembly.config_manager.config_manager import ConfigManager, default_config
+from moduli_assembly.__main__ import default_config
+from moduli_assembly.config_manager.config_manager import ConfigManager
+
+
+# from nose.tools import *
 
 
 # noinspection PyTypeChecker
@@ -57,3 +61,11 @@ class TestConfigManager(TestCase):
             cls.assertIn(cls, 'config_file', userConfig)
             cls.assertIsInstance(cls, userConfig['config_dir'], str)
             cls.assertIsInstance(cls, userConfig['config_file'], str)
+
+    def test_print_config(cls):
+        cls.defaultCM.print_config()
+
+        with mock.patch('sys.stdout') as fake_stdout:
+            cls.defaultCM.print_config()
+
+        fake_stdout.assert_has_calls([mock.call.write(str(cls.defaultCM.config))])
