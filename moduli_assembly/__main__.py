@@ -73,21 +73,22 @@ def version() -> str:
     return __version__
 
 
+def get_moduli_dir(conf: dict) -> Path:
+    return conf['config_dir'].joinpath(conf['moduli_dir'])
+
+
 def get_candidate_path(bitsize: int, conf: dict) -> Path:
-    p = conf["config_dir"].joinpath('.moduli')  # New Root of Candidate Files
-    p = p.joinpath(f'{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
-    p.touch()  # Assure Empty File Exists
-    return p
+    md = get_moduli_dir(conf)  # New Root of Candidate Files
+    return md.joinpath(f'{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
 
 
 def get_screened_path(candidate_path: Path, conf: dict) -> Path:
-    return (conf["config_dir"].joinpath('.moduli')
-            .joinpath(Path(candidate_path.name.replace('candidate', 'screened'))))
+    return get_moduli_dir(conf).joinpath(candidate_path.name.replace('candidate', 'screened'))
 
 
 def screen_candidates(candidate_path: Path, conf: dict) -> None:
     print(f'Screening {candidate_path} for Safe Primes (generator={conf["generator_type"]})')
-    checkpoint_file = conf["config_dir"].joinpath('.moduli').joinpath(f'.{candidate_path.name}')
+    checkpoint_file = get_moduli_dir(conf).joinpath(f'.{candidate_path.name}')
 
     try:
         screen_command = [
@@ -179,7 +180,8 @@ def default_config():
         "generator_type": 2,
         "auth_bitsizes": ["2048", "3072", "4096", "6144", "7680", "8192"],
         "config_dir": ".moduli_assembly",
-        "config_file": ".config"
+        "config_file": ".config",
+        "moduli_dir": ".moduli"
     }
 
 
