@@ -94,7 +94,7 @@ class ConfigManager(object):
             config_file.write_text(dumps(config))
 
     @classmethod
-    def __del__(cls, app_dir=None) -> None:
+    def remove_config_files(cls, app_dir=None) -> None:
         preserve_directories = [Path.home(), Path('/'), Path('/usr/local'), Path('/var'), Path('/var/log')]
         if not app_dir:
             app_dir = cls.config["config_dir"]
@@ -109,5 +109,9 @@ class ConfigManager(object):
                 cls.__del__(file)
                 file.rmdir()
 
+    def __del__(cls, app_dir=None):
+        pass
+
+    @classmethod
     def print_config(cls, path=None):
         print(f'{cls.config}')
