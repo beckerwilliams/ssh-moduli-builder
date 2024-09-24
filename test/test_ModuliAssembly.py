@@ -52,35 +52,34 @@ class TestModuliAssembly(TestCase):
 
     @classmethod
     def test_get_moduli_dir(cls):
-        pass
+        cls.assertEqual(False)
 
     @classmethod
     def test_get_candidate_path(cls):
-        pass
+        cls.assertTrue(False)
 
     @classmethod
     def test_get_screened_path(cls):
-        pass
+        cls.assertTrue(False)
 
     @classmethod
     def test_screen_candidates(cls):
-        pass
+        cls.assertTrue(False)
 
     @classmethod
     def test_generate_candidates(cls):
-        pass
+        cls.assertTrue(False)
 
     @classmethod
     def test_write_moduli_file(cls):
-        pass
+        cls.assertTrue(False)
 
     @classmethod
     def test_restart_candidate_screening(cls):
-        pass
+        cls.assertTrue(False)
 
-    @classmethod
     def test_clear_artifacts(cls):
-        pass
+        cls.assertTrue(False)
 
 
 if __name__ == '__main__':

@@ -24,6 +24,10 @@ def _default_config():
     }
 
 
+def to_be_implemented(function: str):
+    print(f'To be Implemented: {function}')
+
+
 class ModuliAssembly(ConfigManager):
 
     @classmethod
@@ -53,35 +57,35 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def get_moduli_dir(cls):
-        pass
+        to_be_implemented('get_moduli_dir')
 
     @classmethod
     def get_candidate_path(cls):
-        pass
+        to_be_implemented('get_candidate_path')
 
     @classmethod
     def get_screened_path(cls):
-        pass
+        to_be_implemented('get_screened_path')
 
     @classmethod
     def screen_candidates(cls):
-        pass
+        to_be_implemented('screen_candidates')
 
     @classmethod
     def generate_candidates(cls):
-        pass
+        to_be_implemented('generate_candidates')
 
     @classmethod
     def write_moduli_file(cls):
-        pass
+        to_be_implemented('write_moduli_file')
 
     @classmethod
     def restart_candidate_screening(cls):
-        pass
+        to_be_implemented('restart_candidate_screening')
 
     @classmethod
     def clear_artifacts(cls):
-        pass
+        to_be_implemented('clear_artifacts')
 
 
 def main():
