@@ -1,22 +1,7 @@
 #!/usr/bin/env python 3
 from unittest import TestCase, main
 
-from moduli_assembly.ModuliAssembly import ModuliAssembly
-
-
-def _default_config():
-    """
-    tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
-    :return:
-    :rtype:
-    """
-    return {
-        "generator_type": 2,
-        "auth_bitsizes": ["2048", "3072", "4096", "6144", "7680", "8192"],
-        "config_dir": ".moduli_assembly",
-        "config_file": ".config",
-        "moduli_dir": ".moduli"
-    }
+from moduli_assembly.ModuliAssembly import (ModuliAssembly, _default_config)
 
 
 class TestModuliAssembly(TestCase):
