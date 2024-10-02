@@ -33,38 +33,38 @@ class TestModuliAssembly(TestCase):
                 config = _default_config()
                 del config[attr]
                 ma = ModuliAssembly(config)
-            print(f'Exception Tested: {exception.exception}')
+            print(f'Successful Exception Tested: {exception.exception}')
 
     @classmethod
     def test_get_moduli_dir(cls):
-        cls.assertEqual(False)
+        cls.assertEqual(False, True)
 
     @classmethod
     def test_get_candidate_path(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     @classmethod
     def test_get_screened_path(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     @classmethod
     def test_screen_candidates(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     @classmethod
     def test_generate_candidates(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     @classmethod
     def test_write_moduli_file(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     @classmethod
     def test_restart_candidate_screening(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
     def test_clear_artifacts(cls):
-        cls.assertTrue(False)
+        cls.assertTrue(cls, False, True)
 
 
 if __name__ == '__main__':

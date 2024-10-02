@@ -48,7 +48,7 @@ class ModuliAssembly(ConfigManager):
         else:
             cls.config = _default_config()
 
-        for attr in ['config_dir', 'config_file', 'moduli_dir', 'generator_type', 'auth_bitsizes']:
+        for attr in ['config_dir', 'config_file', 'moduli_dir', 'moduli_file', 'generator_type', 'auth_bitsizes']:
             if attr not in cls.config:
                 raise AttributeError(f'Config Required Attribute: {attr}')
 
