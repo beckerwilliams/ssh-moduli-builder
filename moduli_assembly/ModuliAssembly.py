@@ -15,7 +15,7 @@ def ISO_UTC_TIMESTAMP() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
 
 
-def _default_config():
+def default_config():
     """
     tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
     :return:
@@ -46,7 +46,7 @@ class ModuliAssembly(ConfigManager):
         if config:
             cls.config = config
         else:
-            cls.config = _default_config()
+            cls.config = default_config()
 
         for attr in ['config_dir', 'config_file', 'moduli_dir', 'moduli_file', 'generator_type', 'auth_bitsizes']:
             if attr not in cls.config:
@@ -55,22 +55,22 @@ class ModuliAssembly(ConfigManager):
         super().__init__(cls.config)
 
     @classmethod
-    def __del__(cls):
+    def __del__(cls, app_dir=None):
         """
         Override ConfigManager's __del__
         :return:
         :rtype:
         """
-        pass
+        super().__del__(app_dir)
 
     @classmethod
     def get_moduli_dir(cls):
         return cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
 
     @classmethod
-    def get_candidate_path(cls, bitsize: int):
+    def get_candidate_path(cls, key_length: int):
         md = cls.get_moduli_dir()  # New Root of Candidate Files
-        return md.joinpath(f'{bitsize}.candidate_{ISO_UTC_TIMESTAMP()}')
+        return md.joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
 
     @classmethod
     def get_screened_path(cls, candidate_path: Path):
@@ -125,7 +125,8 @@ class ModuliAssembly(ConfigManager):
                             cf.write(ct.read())
 
                 except subprocess.CalledProcessError as e:
-                    raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}')
+                    raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}',
+                                                        cmd=gen_command)
 
             return candidate_file
 
@@ -213,7 +214,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Process Configuration File
-    cm = ConfigManager(_default_config())
+    cm = ConfigManager(default_config())
 
     if args.version:
         print(f'{parser.prog}: Version: {__version__}')
@@ -244,9 +245,9 @@ def main() -> None:
         cm.write_moduli_file('MODULI_FILE')
         exit(0)
 
-    # -a, --all trumps any provided bitsize parameters
+    # -a, --all trumps any provided key_length parameters
     if args.all:
-        bitsizes = list(cm.config["AUTH_BITSIZES"])
+        bitsizes = list(cm.config["AUTH_KEY_LENGTHS"])
     elif args.bitsizes:
         bitsizes = args.bitsizes
     else:
@@ -256,17 +257,17 @@ def main() -> None:
     bitsizes.sort()  # We'll run in Increasing Order. The opposite (.reverse()) will take the LONGEST runs, first
 
     run_bits = {}
-    for bitsize in bitsizes:
+    for key_length in bitsizes:
 
-        if bitsize not in cm.config["AUTH_BITSIZES"]:
-            print(f'Bitsize: {bitsize} is not Enabled')
+        if key_length not in cm.config["AUTH_KEY_LENGTHS"]:
+            print(f'Bitsize: {key_length} is not Enabled')
             print('Enabled Bitsizes: "[-b 2048 3072 4096 6144 7680 8192]"')
             exit(1)
 
-        run_bits[bitsize] = bitsizes.count(bitsize)
+        run_bits[key_length] = bitsizes.count(key_length)
 
-    candidates = [cm.generate_candidates(int(bitsize), run_bits[bitsize])
-                  for bitsize in run_bits if run_bits[bitsize]]
+    candidates = [cm.generate_candidates(int(key_length), run_bits[key_length])
+                  for key_length in run_bits if run_bits[key_length]]
 
     # Screen Candidates, Log Screened File Paths
     with cm.config["config_dir"].joinpath('screened-files.txt').open('a') as cf:
