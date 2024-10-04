@@ -5,11 +5,23 @@ from unittest import TestCase, main
 from moduli_assembly.ModuliAssembly import (ModuliAssembly, default_config)
 
 
+def delete_fs(path: Path):
+    for file in path.iterdir():
+        if file.is_file():
+            file.unlink()
+        else:
+            delete_fs(file)
+    path.rmdir()
+
+
 class TestModuliAssembly(TestCase):
 
     def setUp(cls):
         cls.ma = ModuliAssembly()
         cls.moduli_dir = Path.home().joinpath('.moduli_assembly', '.moduli')
+
+    def tearDown(cls):
+        delete_fs(cls.ma.get_moduli_dir())
 
     def test_ModuliAssembly_default_config(cls):
         cls.assertTrue(cls, cls.ma.config is not None)
@@ -58,22 +70,14 @@ class TestModuliAssembly(TestCase):
         :return:
         :rtype:
         """
-        # key_length = 2048
-        # candidates_file = cls.ma.generate_candidates(key_length)
-        # cf = candidates_file.read_text()
-        # # Validate Each File Exists and is Non-Zero
+        pass
+        # candidate_file = cls.ma.generate_candidates(2048, 1)
+        # cls.assertTrue(candidate_file.exists())
+        # cls.assertTrue(candidate_file.stat().st_size > 1)
+
+    def test_generate_screened_candidates(cls):
+        pass
         # tbd
-        cls.assertTrue(False)
-        
-    #
-    # def test_write_moduli_file(cls):
-    #     cls.assertTrue(False, True)
-    #
-    # def test_restart_candidate_screening(cls):
-    #     cls.assertTrue(False, True)
-    #
-    # def test_clear_artifacts(cls):
-    #     cls.assertTrue(False, True)
 
 
 if __name__ == '__main__':

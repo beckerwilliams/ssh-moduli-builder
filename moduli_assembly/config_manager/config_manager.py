@@ -7,7 +7,7 @@ from pathlib import PosixPath as Path
 #       The Config Directory will always be placed in User's HOME
 #
 # You can change either _def_dirname or _def_cfgname, Or supply your own config on __init__
-_def_dirname: str = '.bw_cfg'
+_def_dirname: str = '.moduli_assembly'
 _def_cfgname: str = '.config'
 
 # ________________________________________ (DO NOT MODIFY BELOW) _________________________________

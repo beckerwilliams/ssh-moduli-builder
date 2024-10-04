@@ -53,6 +53,8 @@ class ModuliAssembly(ConfigManager):
                 raise AttributeError(f'Config Required Attribute: {attr}')
 
         super().__init__(cls.config)
+        md = cls.config["config_dir"].joinpath(cls.config["moduli_dir"])
+        md.mkdir(exist_ok=True, parents=True)
 
     @classmethod
     def __del__(cls, app_dir=None):
@@ -70,11 +72,13 @@ class ModuliAssembly(ConfigManager):
     @classmethod
     def get_candidate_path(cls, key_length: int):
         md = cls.get_moduli_dir()  # New Root of Candidate Files
-        return md.joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
+        cpath = md.joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
+        cpath.touch()
+        return cpath
 
     @classmethod
     def get_screened_path(cls, candidate_path: Path):
-        return cls.get_moduli_dir().joinpath(candidate_path.name.replace('candidate', 'screened'))
+        cls.get_moduli_dir().joinpath(candidate_path.name.replace('candidate', 'screened'))
 
     @classmethod
     def screen_candidates(cls, candidate_path: Path) -> None:
@@ -101,34 +105,33 @@ class ModuliAssembly(ConfigManager):
         print(f'{candidate_path} Unlinked')
 
     @classmethod
-    def generate_candidates(cls):
-        def generate_candidates(cls, key_length: int, count: int) -> Path:
-            print(f'Generating candidate files for modulus size: {key_length}')
-            candidate_file = cls.get_candidate_path(key_length)
+    def generate_candidates(cls, key_length: int, count: int) -> Path:
+        print(f'Generating candidate files for modulus size: {key_length}')
+        candidate_file = cls.get_candidate_path(key_length)
 
-            for _ in range(count):
+        for _ in range(count):
 
-                try:
-                    candidates_temp = tempfile.mktemp()
-                    # Generate the prime number of the specified bit length
-                    gen_command = [
-                        'ssh-keygen',
-                        '-M', 'generate',
-                        '-O', f'bits={key_length}',
-                        candidates_temp
-                    ]
-                    subprocess.run(gen_command, check=True, text=True)
+            try:
+                candidates_temp = tempfile.mktemp()
+                # Generate the prime number of the specified bit length
+                gen_command = [
+                    'ssh-keygen',
+                    '-M', 'generate',
+                    '-O', f'bits={key_length}',
+                    candidates_temp
+                ]
+                subprocess.run(gen_command, check=True, text=True)
 
-                    # Copy Temporary Candidates to Candidates for Screening Run
-                    with candidate_file.open('a') as cf:
-                        with open(candidates_temp, 'r') as ct:
-                            cf.write(ct.read())
+                # Copy Temporary Candidates to Candidates for Screening Run
+                with candidate_file.open('a') as cf:
+                    with open(candidates_temp, 'r') as ct:
+                        cf.write(ct.read())
 
-                except subprocess.CalledProcessError as e:
-                    raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}',
-                                                        cmd=gen_command)
+            except subprocess.CalledProcessError as e:
+                raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}',
+                                                    cmd=gen_command)
 
-            return candidate_file
+        return candidate_file
 
     @classmethod
     def write_moduli_file(cls, filename: Path) -> None:
