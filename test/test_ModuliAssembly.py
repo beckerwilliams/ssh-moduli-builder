@@ -5,23 +5,26 @@ from unittest import TestCase, main
 from moduli_assembly.ModuliAssembly import (ModuliAssembly, default_config)
 
 
-def delete_fs(path: Path):
+def _delete_fs(path: Path):
     for file in path.iterdir():
         if file.is_file():
             file.unlink()
         else:
-            delete_fs(file)
+            _delete_fs(file)
     path.rmdir()
 
 
 class TestModuliAssembly(TestCase):
 
     def setUp(cls):
+        config_dir = Path.home().joinpath(".moduli_assembly")
+        if config_dir.exists():
+            _delete_fs(config_dir)
         cls.ma = ModuliAssembly()
         cls.moduli_dir = Path.home().joinpath('.moduli_assembly', '.moduli')
 
     def tearDown(cls):
-        delete_fs(cls.ma.get_moduli_dir())
+        pass
 
     def test_ModuliAssembly_default_config(cls):
         cls.assertTrue(cls, cls.ma.config is not None)
@@ -34,12 +37,6 @@ class TestModuliAssembly(TestCase):
             cls.assertTrue(cls, 'moduli_dir' in cls.ma.config)
 
     def test_ModuliAssembly_missing_attrs(cls):
-        """
-        Validate throws Exception on Missing Attributes
-
-        :return:
-        :rtype:
-        """
         for attr in default_config():
             with cls.assertRaises(AttributeError) as exception:
                 config = default_config()
@@ -54,30 +51,25 @@ class TestModuliAssembly(TestCase):
         # Vars for get_candidate_file
         key_length = 2048
         tpath = str(cls.ma.get_moduli_dir().joinpath(f'{key_length}.candidate_'))
-        cp = str(cls.ma.get_candidate_path(key_length))
-        cls.assertTrue(tpath in cp)
+        # cp = str(cls.ma.get_candidate_path(key_length))
+        cls.assertTrue(tpath in str(cls.ma.get_candidate_path(key_length)))
 
     def test_get_screened_path(cls):
         key_length = 2048
         cp = cls.ma.get_candidate_path(key_length)
-        sp = str(cls.ma.get_screened_path(cp).absolute())
+        sp = cls.ma.get_screened_path(cp)
         cls.assertTrue(str(sp).replace('screened', 'candidate') == str(cp.absolute()))
 
-    def test_generate_candidates(cls):
-        """
-        Here's we'll attempt generation with one key_length, 2048,
-        and test the Return CANDIDATE File for Candidate ENTRIES
-        :return:
-        :rtype:
-        """
-        pass
-        # candidate_file = cls.ma.generate_candidates(2048, 1)
-        # cls.assertTrue(candidate_file.exists())
-        # cls.assertTrue(candidate_file.stat().st_size > 1)
+    def test_generate_and_screen_candidates(cls):
+        candidate_file = cls.ma.generate_candidates(2048, 1)
+        cls.assertTrue(candidate_file.exists())
+        cls.assertTrue(candidate_file.stat().st_size > 1)
+        cls.assertTrue(len(candidate_file.read_text().split('\n')) > 50000)
 
-    def test_generate_screened_candidates(cls):
-        pass
-        # tbd
+        screened_file = cls.ma.screen_candidates(candidate_file)
+        cls.assertTrue(screened_file.exists())
+        cls.assertTrue(screened_file.stat().st_size > 1)
+        cls.assertTrue(len(screened_file.read_text().split('\n')) > 15)
 
 
 if __name__ == '__main__':

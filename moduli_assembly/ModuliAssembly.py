@@ -78,10 +78,10 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def get_screened_path(cls, candidate_path: Path):
-        cls.get_moduli_dir().joinpath(candidate_path.name.replace('candidate', 'screened'))
+        return cls.get_moduli_dir().joinpath(candidate_path.name.replace('candidate', 'screened'))
 
     @classmethod
-    def screen_candidates(cls, candidate_path: Path) -> None:
+    def screen_candidates(cls, candidate_path: Path) -> Path:
         print(f'Screening {candidate_path} for Safe Primes (generator={cls.config['generator_type']})')
         checkpoint_file = cls.get_moduli_dir().joinpath(f'.{candidate_path.name}')
 
@@ -103,6 +103,7 @@ class ModuliAssembly(ConfigManager):
         # We've screened the Candidates, Discard File
         candidate_path.unlink()
         print(f'{candidate_path} Unlinked')
+        return cls.get_screened_path(candidate_path)
 
     @classmethod
     def generate_candidates(cls, key_length: int, count: int) -> Path:
