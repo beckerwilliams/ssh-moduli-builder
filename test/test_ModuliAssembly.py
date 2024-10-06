@@ -1,30 +1,49 @@
 #!/usr/bin/env python 3
 from pathlib import PosixPath as Path
-from unittest import TestCase, main
+from unittest import TestCase
 
 from moduli_assembly.ModuliAssembly import (ModuliAssembly, default_config)
 
 
 def _delete_fs(path: Path):
-    for file in path.iterdir():
-        if file.is_file():
-            file.unlink()
-        else:
-            _delete_fs(file)
+    if path.exists() and path.is_dir():
+        for file in path.iterdir():
+            if file.is_file() or file.is_symlink():
+                file.unlink()
+            else:
+                _delete_fs(file)
     path.rmdir()
+
+
+def _load_candidate() -> Path:
+    """
+    Copies earliest Candidate File found in 'test/resources' to working moduli directory, .moduli_assembly/.moduli
+    :return: None
+    :rtype:
+    """
+
+    candidate = [file for file in Path('test/resources').glob('????.candidate*')][0]
+    mdir = Path.home().joinpath('.moduli_assembly/.moduli')
+    mdir.joinpath(candidate.name).write_text(candidate.read_text())
+    return mdir.joinpath(candidate.name)
+
+
+def _store_candidate(candidate_file: Path) -> None:
+    Path('test/resources').joinpath(candidate_file.name).write_text(candidate_file.read_text())
 
 
 class TestModuliAssembly(TestCase):
 
     def setUp(cls):
-        config_dir = Path.home().joinpath(".moduli_assembly")
-        if config_dir.exists():
-            _delete_fs(config_dir)
         cls.ma = ModuliAssembly()
+        cls.config_dir = Path.home().joinpath('.moduli_assembly')
         cls.moduli_dir = Path.home().joinpath('.moduli_assembly', '.moduli')
+        cls.test_version = '0.10.1'
 
     def tearDown(cls):
-        pass
+        config_dir = Path.home().joinpath(cls.ma.config['config_dir'])
+        if config_dir.exists() and config_dir.is_dir():
+            _delete_fs(config_dir)
 
     def test_ModuliAssembly_default_config(cls):
         cls.assertTrue(cls, cls.ma.config is not None)
@@ -42,7 +61,7 @@ class TestModuliAssembly(TestCase):
                 config = default_config()
                 del config[attr]
                 ModuliAssembly(config)
-            print(f'Successful Exception Tested: {exception.exception}')
+            print(f'Success: Exception Tested: {exception.exception}')
 
     def test_get_moduli_dir(cls):
         cls.assertEqual(cls.ma.get_moduli_dir(), cls.moduli_dir)
@@ -60,17 +79,45 @@ class TestModuliAssembly(TestCase):
         sp = cls.ma.get_screened_path(cp)
         cls.assertTrue(str(sp).replace('screened', 'candidate') == str(cp.absolute()))
 
-    def test_generate_and_screen_candidates(cls):
+    def test_generate_candidates(cls):
         candidate_file = cls.ma.generate_candidates(2048, 1)
         cls.assertTrue(candidate_file.exists())
         cls.assertTrue(candidate_file.stat().st_size > 1)
         cls.assertTrue(len(candidate_file.read_text().split('\n')) > 50000)
+
+        # Preserve Candidate for Screening Run
+        Path('test/resources').joinpath(candidate_file.name).write_text(candidate_file.read_text())
+        _store_candidate(candidate_file)
+
+    def test_screen_candidates(cls):
+        # Copy Pre-Generated Candidates to Moduli Dir for Screen Testing
+        candidate_file = _load_candidate()
 
         screened_file = cls.ma.screen_candidates(candidate_file)
         cls.assertTrue(screened_file.exists())
         cls.assertTrue(screened_file.stat().st_size > 1)
         cls.assertTrue(len(screened_file.read_text().split('\n')) > 15)
 
+    def test_restart_candidate_screening(cls):
+        candidate_file = _load_candidate()
+        cls.ma.restart_candidate_screening()
+        # cls.assertTrue(cls.ma.screened_path(candidate_file).exists())
+        cls.assertTrue(cls.ma.get_screened_path(candidate_file).exists())
+        # cls.assertTrue(cls.ma.screened_path(candidate_file).stat().st_size > 1)
+        cls.assertTrue(cls.ma.get_screened_path(candidate_file).stat().st_size > 1)
+        # cls.assertTrue(len(cls.ma.screened_path(candidate_file).read_text().split('\n')) > 15)
+        cls.assertTrue(len(cls.ma.get_screened_path(candidate_file).read_text().split('\n')) > 15)
 
-if __name__ == '__main__':
-    main()
+    def test_write_moduli_file(cls):
+        moduli_file = cls.ma.write_moduli_file()
+        cls.assertTrue(moduli_file.exists())
+        cls.assertTrue(moduli_file.stat().st_size > 1)
+
+    def test_write_named_moduli_file(cls):
+        moduli_file = cls.ma.write_moduli_file(cls.ma.config['config_dir'].joinpath('TEST_MODULI_FILE'))
+        cls.assertTrue(moduli_file.exists())
+        cls.assertTrue(moduli_file.stat().st_size > 1)
+
+    def test_get_version(cls):
+        version = cls.ma.version
+        cls.assertTrue(cls.ma.version == cls.test_version)
