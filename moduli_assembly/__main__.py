@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from pathlib import PosixPath as Path
 
-from ModuliAssembly import (default_config)
+from ModuliAssembly import (ModuliAssembly)
 
 
 def cl_args():
@@ -54,10 +54,10 @@ def main() -> None:
     args = parser.parse_args()
 
     # Process Configuration File
-    cm = ConfigManager(default_config())
+    cm = ModuliAssembly()
 
     if args.version:
-        print(f'{parser.prog}: Version: {__version__}')
+        print(f'{parser.prog}: Version: {cm.version}')
         exit(0)
 
     if args.clear_artifacts:  # Delete and Recreate '.moduli'

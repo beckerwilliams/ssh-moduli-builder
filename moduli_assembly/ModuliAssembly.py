@@ -34,6 +34,32 @@ def to_be_implemented(function: str):
     print(f'To be Implemented: {function}')
 
 
+def _fs_delete(dir_path: Path):
+    protected_dirs = [
+        Path('/'),
+        Path('/home'),
+        Path('/usr'),
+        Path('/usr/local'),
+        Path('/var'),
+        Path('/opt'),
+        Path('/usr/opt'),
+        Path('/var/opt')
+    ]
+    if dir_path in protected_dirs:
+        raise PermissionError(f'Illegal Path Selected: {dir_path}')
+
+    if dir_path.exists:
+        if dir_path.is_dir():
+            for fobject in dir_path.iterdir():
+                if fobject.is_dir():
+                    _fs_delete(fobject)
+                    fobject.rmdir()
+                else:
+                    fobject.unlink()
+        else:
+            raise TypeError('Error: supplied path is not a directory')
+
+
 class ModuliAssembly(ConfigManager):
 
     @property
@@ -68,31 +94,35 @@ class ModuliAssembly(ConfigManager):
         super().__del__(app_dir)
 
     @classmethod
+    def create_checkpoint_filename(cls, path: Path) -> Path:
+        return cls.get_moduli_dir().joinpath(f'.{path.name}')
+
+    @classmethod
     def get_moduli_dir(cls) -> Path:
         return cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
 
     @classmethod
-    def get_candidate_path(cls, key_length: int):
+    def create_candidate_path(cls, key_length: int):
         md = cls.get_moduli_dir()  # New Root of Candidate Files
         cpath = md.joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
         cpath.touch()
         return cpath
 
     @classmethod
-    def get_screened_path(cls, candidate_path: Path):
-        return cls.get_moduli_dir().joinpath(candidate_path.name.replace('candidate', 'screened'))
+    def get_screened_path(cls, candidate_path: Path) -> Path:
+        return candidate_path.parent.joinpath(str(candidate_path.name)
+                                              .replace('candidate', 'screened'))
 
     @classmethod
     def screen_candidates(cls, candidate_path: Path) -> Path:
         print(f'Screening {candidate_path} for Safe Primes (generator={cls.config['generator_type']})')
-        checkpoint_file = cls.get_moduli_dir().joinpath(f'.{candidate_path.name}')
 
         try:
             screen_command = [
                 'ssh-keygen',
                 '-M', 'screen',
                 '-O', f'generator={cls.config['generator_type']}',
-                '-O', f'checkpoint={checkpoint_file}',
+                '-O', f'checkpoint={cls.create_checkpoint_filename(candidate_path)}',
                 '-f', candidate_path,
                 cls.get_screened_path(candidate_path)
             ]
@@ -104,12 +134,13 @@ class ModuliAssembly(ConfigManager):
 
         # We've screened the Candidates, Discard File
         candidate_path.unlink()
+
         return cls.get_screened_path(candidate_path)
 
     @classmethod
     def generate_candidates(cls, key_length: int, count: int) -> Path:
         print(f'Generating candidate files for modulus size: {key_length}')
-        candidate_file = cls.get_candidate_path(key_length)
+        candidate_file = cls.create_candidate_path(key_length)
 
         for _ in range(count):
 
@@ -167,15 +198,14 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def restart_candidate_screening(cls):
-        for modulus_file in [moduli for moduli in cls.config['config_dir'].joinpath('.moduli').glob('????.candidate*')]:
+        for modulus_file in [moduli for moduli in cls.get_moduli_dir().glob('????.candidate*')]:
             cls.screen_candidates(modulus_file)
             cls.write_moduli_file(modulus_file)
 
     @classmethod
     def clear_artifacts(cls):
-        for file in (cls.config['config_dir'].joinpath(cls.config['moduli_dir'])).glob('*'):
-            file.unlink()
+        _fs_delete(cls.get_moduli_dir())
 
     @classmethod
     def print_config(cls):
-        super().print_config()
+        super().print_config(None)
