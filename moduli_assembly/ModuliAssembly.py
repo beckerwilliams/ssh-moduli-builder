@@ -67,6 +67,10 @@ class ModuliAssembly(ConfigManager):
         return __version__
 
     @classmethod
+    def moduli_dir(cls) -> Path:
+        return cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
+
+    @classmethod
     def __init__(cls, config: dict = None) -> None:
         if config:
             cls.config = config
@@ -78,11 +82,10 @@ class ModuliAssembly(ConfigManager):
                 raise AttributeError(f'Config Required Attribute: {attr}: Missing')
 
         super().__init__(cls.config)
-        md = cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
-        if not md.parents:  # Root directory name to user's $HOME
-            md = Path.home().joinpath(md)
-
-        md.mkdir(exist_ok=True, parents=True)
+        # Make .moduli directory in config directory
+        if not cls.moduli_dir().parent:  # Root directory name to user's $HOME
+            md = Path.home().joinpath(cls.moduli_dir())
+        cls.moduli_dir().mkdir()
 
     @classmethod
     def __del__(cls, app_dir=None):
@@ -95,18 +98,13 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def create_checkpoint_filename(cls, path: Path) -> Path:
-        return cls.get_moduli_dir().joinpath(f'.{path.name}')
-
-    @classmethod
-    def get_moduli_dir(cls) -> Path:
-        return cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
+        return cls.moduli_dir().joinpath(f'.{path.name}')
 
     @classmethod
     def create_candidate_path(cls, key_length: int):
-        md = cls.get_moduli_dir()  # New Root of Candidate Files
-        cpath = md.joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
-        cpath.touch()
-        return cpath
+        candidate_path = cls.moduli_dir().joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
+        candidate_path.touch()
+        return candidate_path
 
     @classmethod
     def get_screened_path(cls, candidate_path: Path) -> Path:
@@ -185,7 +183,7 @@ class ModuliAssembly(ConfigManager):
         with path.open('w') as mfp:
             mfp.write(f'#/etc/ssh/moduli: moduli_assembly: {ts}\n')
             moduli = [moduli for moduli in
-                      cls.get_moduli_dir().glob('????.screened*')]
+                      cls.moduli_dir().glob('????.screened*')]
             moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
 
             for modulus_file in moduli:
@@ -198,14 +196,14 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def restart_candidate_screening(cls):
-        for modulus_file in [moduli for moduli in cls.get_moduli_dir().glob('????.candidate*')]:
+        for modulus_file in [moduli for moduli in cls.moduli_dir().glob('????.candidate*')]:
             cls.screen_candidates(modulus_file)
             cls.write_moduli_file(modulus_file)
 
     @classmethod
     def clear_artifacts(cls):
-        _fs_delete(cls.get_moduli_dir())
+        _fs_delete(cls.moduli_dir())
 
     @classmethod
-    def print_config(cls):
-        super().print_config(None)
+    def print_config():
+        super().print_config()

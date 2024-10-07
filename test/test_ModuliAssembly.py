@@ -2,17 +2,17 @@
 from pathlib import PosixPath as Path
 from unittest import TestCase
 
-from moduli_assembly.ModuliAssembly import (ModuliAssembly, __version__, default_config)
+from moduli_assembly.ModuliAssembly import (ModuliAssembly, __version__, _fs_delete as _delete_fs, default_config)
 
 
-def _delete_fs(path: Path):
-    if path.exists() and path.is_dir():
-        for file in path.iterdir():
-            if not file.is_dir():
-                file.unlink()
-            else:
-                _delete_fs(file)
-    path.rmdir()
+# def _delete_fs(path: Path):
+#     if path.exists() and path.is_dir():
+#         for file in path.iterdir():
+#             if not file.is_dir():
+#                 file.unlink()
+#             else:
+#                 _delete_fs(file)
+#     path.rmdir()
 
 
 def _load_candidate(target_moduli_dir: Path = None) -> Path:
@@ -82,12 +82,12 @@ class TestModuliAssembly(TestCase):
             print(f'Success: Exception Tested: {exception.exception}')
 
     def test_get_moduli_dir(cls):
-        cls.assertEqual(cls.ma.get_moduli_dir(), cls.moduli_dir)
+        cls.assertEqual(cls.ma.moduli_dir(), cls.moduli_dir)
 
     def test_create_candidate_path(cls):
         # Vars for get_candidate_file
         key_length = 2048
-        tpath = str(cls.ma.get_moduli_dir().joinpath(f'{key_length}.candidate_'))
+        tpath = str(cls.ma.moduli_dir().joinpath(f'{key_length}.candidate_'))
         cls.assertTrue(tpath in str(cls.ma.create_candidate_path(key_length)))
 
     def test_get_screened_path(cls):
@@ -99,9 +99,9 @@ class TestModuliAssembly(TestCase):
 
     def test_generate_candidates(cls):
         """
-        Tests to
-        :return:
-        :rtype:
+        Generate Candidate Moduli Files via ssh-keygen -M generate ...
+        :return: None
+        :rtype: None
         """
         candidate_file = cls.ma.generate_candidates(2048, 1)
         cls.assertTrue(candidate_file.exists())
@@ -113,15 +113,15 @@ class TestModuliAssembly(TestCase):
 
     def test_screen_candidates(cls):
         # Copy Pre-Generated Candidates to Moduli Dir for Screen Testing
-        candidate_file = _load_candidate(cls.ma.get_moduli_dir())
-
+        candidate_file = _load_candidate(cls.ma.moduli_dir())
         screened_file = cls.ma.screen_candidates(candidate_file)
+
         cls.assertTrue(screened_file.exists())
         cls.assertTrue(screened_file.stat().st_size > 1)
         cls.assertTrue(len(screened_file.read_text().split('\n')) > 1)
 
     def test_restart_candidate_screening(cls):
-        candidate_file = _load_candidate(cls.ma.get_moduli_dir())
+        candidate_file = _load_candidate(cls.ma.moduli_dir())
         cls.ma.restart_candidate_screening()
         cls.assertTrue(cls.ma.get_screened_path(candidate_file).exists())
         cls.assertTrue(cls.ma.get_screened_path(candidate_file).stat().st_size > 1)
