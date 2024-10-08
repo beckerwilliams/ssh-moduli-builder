@@ -15,11 +15,11 @@ def ISO_UTC_TIMESTAMP() -> str:
 
 
 def default_config():
-    '''
+    """
     tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
     :return:
     :rtype:
-    '''
+    """
     return {
         'generator_type': 2,
         'auth_bitsizes': ['2048', '3072', '4096', '6144', '7680', '8192'],
@@ -63,66 +63,68 @@ def _fs_delete(dir_path: Path):
 class ModuliAssembly(ConfigManager):
 
     @property
-    def version(cls) -> str:
+    def version(self) -> str:
         return __version__
 
     @classmethod
-    def moduli_dir(cls) -> Path:
-        return cls.config['config_dir'].joinpath(cls.config['moduli_dir'])
+    def moduli_dir(self) -> Path:
+        return Path(self.config['config_dir']).joinpath(self.config['moduli_dir'])
 
     @classmethod
-    def __init__(cls, config: dict = None) -> None:
+    def __init__(self, config: dict = None) -> None:
         if config:
-            cls.config = config
+            self.config = config
         else:
-            cls.config = default_config()
+            self.config = default_config()
 
         for attr in ['config_dir', 'config_file', 'moduli_dir', 'moduli_file', 'generator_type', 'auth_bitsizes']:
-            if attr not in cls.config:
+            if attr not in self.config:
                 raise AttributeError(f'Config Required Attribute: {attr}: Missing')
 
-        super().__init__(cls.config)
+        super().__init__(self.config)
         # Make .moduli directory in config directory
-        if not cls.moduli_dir().parent:  # Root directory name to user's $HOME
-            md = Path.home().joinpath(cls.moduli_dir())
-        cls.moduli_dir().mkdir()
+        # if not self.moduli_dir().parent:  # Root directory name to user's $HOME
+        #     md = Path.home().joinpath(self.moduli_dir())
+        self.moduli_dir().mkdir(exist_ok=True)
 
     @classmethod
-    def __del__(cls, app_dir=None):
-        '''
+    def __del__(self):
+        """
         Override ConfigManager's __del__
-        :return:
+        :return: None
         :rtype:
-        '''
-        super().__del__(app_dir)
+        :raises: FileNotFoundError
+        :raises: FileExistsError
+        """
+        super().__del__(self)
 
     @classmethod
-    def create_checkpoint_filename(cls, path: Path) -> Path:
-        return cls.moduli_dir().joinpath(f'.{path.name}')
+    def create_checkpoint_filename(self, path: Path) -> Path:
+        return self.moduli_dir().joinpath(f'.{path.name}')
 
     @classmethod
-    def create_candidate_path(cls, key_length: int):
-        candidate_path = cls.moduli_dir().joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
+    def create_candidate_path(self, key_length: int):
+        candidate_path = self.moduli_dir().joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
         candidate_path.touch()
         return candidate_path
 
     @classmethod
-    def get_screened_path(cls, candidate_path: Path) -> Path:
+    def get_screened_path(self, candidate_path: Path) -> Path:
         return candidate_path.parent.joinpath(str(candidate_path.name)
                                               .replace('candidate', 'screened'))
 
     @classmethod
-    def screen_candidates(cls, candidate_path: Path) -> Path:
-        print(f'Screening {candidate_path} for Safe Primes (generator={cls.config['generator_type']})')
+    def screen_candidates(self, candidate_path: Path) -> Path:
+        print(f'Screening {candidate_path} for Safe Primes (generator={self.config['generator_type']})')
 
         try:
             screen_command = [
                 'ssh-keygen',
                 '-M', 'screen',
-                '-O', f'generator={cls.config['generator_type']}',
-                '-O', f'checkpoint={cls.create_checkpoint_filename(candidate_path)}',
+                '-O', f'generator={self.config['generator_type']}',
+                '-O', f'checkpoint={self.create_checkpoint_filename(candidate_path)}',
                 '-f', candidate_path,
-                cls.get_screened_path(candidate_path)
+                self.get_screened_path(candidate_path)
             ]
             subprocess.run(screen_command, text=True, check=True)
 
@@ -133,14 +135,15 @@ class ModuliAssembly(ConfigManager):
         # We've screened the Candidates, Discard File
         candidate_path.unlink()
 
-        return cls.get_screened_path(candidate_path)
+        return self.get_screened_path(candidate_path)
 
     @classmethod
-    def generate_candidates(cls, key_length: int, count: int) -> Path:
+    def generate_candidates(self, key_length: int, count: int) -> Path:
         print(f'Generating candidate files for modulus size: {key_length}')
-        candidate_file = cls.create_candidate_path(key_length)
+        candidate_file = self.create_candidate_path(key_length)
 
         for _ in range(count):
+            gen_command = []
 
             try:
                 candidates_temp = tempfile.mktemp()
@@ -165,9 +168,11 @@ class ModuliAssembly(ConfigManager):
         return candidate_file
 
     @classmethod
-    def write_moduli_file(cls, pathname: Path = None) -> Path:
+    def write_moduli_file(self, pathname: Path = None) -> Path:
         if not pathname:
-            pathname = cls.config['config_dir'].joinpath(cls.config['moduli_file'])
+            pathname = Path(self.config['config_dir']).joinpath(self.config['moduli_file'])
+        else:
+            pathname = Path(pathname)  # a Hack
 
         # Append Time Stamp to File
         ts = ISO_UTC_TIMESTAMP()
@@ -183,7 +188,7 @@ class ModuliAssembly(ConfigManager):
         with path.open('w') as mfp:
             mfp.write(f'#/etc/ssh/moduli: moduli_assembly: {ts}\n')
             moduli = [moduli for moduli in
-                      cls.moduli_dir().glob('????.screened*')]
+                      self.moduli_dir().glob('????.screened*')]
             moduli.sort()  # Assure We Write Moduli in Increasing Bitsize Order
 
             for modulus_file in moduli:
@@ -195,15 +200,15 @@ class ModuliAssembly(ConfigManager):
         return path
 
     @classmethod
-    def restart_candidate_screening(cls):
-        for modulus_file in [moduli for moduli in cls.moduli_dir().glob('????.candidate*')]:
-            cls.screen_candidates(modulus_file)
-            cls.write_moduli_file(modulus_file)
+    def restart_candidate_screening(self):
+        for modulus_file in [moduli for moduli in self.moduli_dir().glob('????.candidate*')]:
+            self.screen_candidates(modulus_file)
+            self.write_moduli_file(modulus_file)
 
     @classmethod
-    def clear_artifacts(cls):
-        _fs_delete(cls.moduli_dir())
+    def clear_artifacts(self):
+        _fs_delete(self.moduli_dir())
 
     @classmethod
-    def print_config():
+    def print_config(self):
         super().print_config()

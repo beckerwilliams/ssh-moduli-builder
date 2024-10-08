@@ -67,6 +67,30 @@ def _disable_path_properties(config: dict) -> dict:
     return config
 
 
+def _fs_delete(config_dir: Path) -> Path:
+    """
+
+    :param: config_dir
+    :type: Path
+    :return: None
+    :rtype:
+    :raises: FileNotFoundError
+    :raises: FileExistsError
+    """
+    if config_dir.exists():
+        if config_dir.is_dir():
+            for file_object in config_dir.iterdir():
+                if not file_object.is_dir():
+                    file_object.unlink()
+                else:
+                    _fs_delete(file_object)
+                    file_object.rmdir()
+        else:
+            raise FileExistsError(f'{config_dir} is not a directory')
+    else:
+        raise FileNotFoundError(config_dir)
+
+
 class ConfigManager(object):
 
     @classmethod
@@ -83,9 +107,13 @@ class ConfigManager(object):
         if not config:
             config = default_config()
 
+        super().__init__(cls)
+
         config_file = Path.home().joinpath(config["config_dir"], config["config_file"])
         if config_file.exists and config_file.is_file():
-            cls.config = _enable_path_properties(loads(config_file.read_text()))
+            config_text = config_file.read_text()
+            config_json = loads(config_text)
+            cls.config = _enable_path_properties(config_json)
         else:
             cls.config = _enable_path_properties(config)
             if not cls.config["config_dir"].exists():
@@ -94,8 +122,8 @@ class ConfigManager(object):
             config_file.write_text(dumps(config))
 
     @classmethod
-    def remove_config_files(cls, app_dir=None) -> None:
-        preserve_directories = [Path.home(), Path('/'), Path('/usr/local'), Path('/var'), Path('/var/log')]
+    def resource_config_file_maintainance(cls, app_dir=None) -> None:
+        preserve_directories = [Path.home().parent, Path('/'), Path('/usr/local'), Path('/var'), Path('/var/log')]
         if not app_dir:
             app_dir = cls.config["config_dir"]
 
@@ -109,9 +137,9 @@ class ConfigManager(object):
                 cls.__del__(file)
                 file.rmdir()
 
-    def __del__(cls, app_dir=None):
-        pass
+    def __del__(cls):
+        _fs_delete(cls.config["config_dir"])
 
     @classmethod
-    def print_config(cls, path=None):
+    def print_config(cls):
         print(f'{cls.config}')

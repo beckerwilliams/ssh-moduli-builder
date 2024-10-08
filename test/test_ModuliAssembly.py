@@ -5,16 +5,6 @@ from unittest import TestCase
 from moduli_assembly.ModuliAssembly import (ModuliAssembly, __version__, _fs_delete as _delete_fs, default_config)
 
 
-# def _delete_fs(path: Path):
-#     if path.exists() and path.is_dir():
-#         for file in path.iterdir():
-#             if not file.is_dir():
-#                 file.unlink()
-#             else:
-#                 _delete_fs(file)
-#     path.rmdir()
-
-
 def _load_candidate(target_moduli_dir: Path = None) -> Path:
     """
     Copies earliest Candidate File found in 'test/resources' to working moduli directory, .moduli_assembly/.moduli
@@ -139,3 +129,6 @@ class TestModuliAssembly(TestCase):
 
     def test_get_version(cls):
         cls.assertTrue(cls.ma.version == __version__)
+
+    def test_config(cls):
+        pass

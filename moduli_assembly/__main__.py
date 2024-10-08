@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from pathlib import PosixPath as Path
 
-from ModuliAssembly import (ModuliAssembly)
+from moduli_assembly.ModuliAssembly import (ModuliAssembly)
 
 
 def cl_args():
@@ -75,8 +75,8 @@ def main() -> None:
 
     # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
-        cm.write_moduli_file(cm.config["config_file"])
-        print(f'Wrote moduli file, {cm.config["config_file"]}, and exiting.')
+        cm.write_moduli_file(cm.config['moduli_file'])
+        print(f'Wrote moduli file, {cm.config['moduli_file']}, and exiting.')
         exit(0)
 
     if args.restart:
@@ -87,7 +87,7 @@ def main() -> None:
 
     # -a, --all trumps any provided key_length parameters
     if args.all:
-        bitsizes = list(cm.config["AUTH_KEY_LENGTHS"])
+        bitsizes = list(cm.config["auth_key_lengths"])
     elif args.bitsizes:
         bitsizes = args.bitsizes
     else:
@@ -99,7 +99,7 @@ def main() -> None:
     run_bits = {}
     for key_length in bitsizes:
 
-        if key_length not in cm.config["AUTH_KEY_LENGTHS"]:
+        if key_length not in cm.config["auth_bitsizes"]:
             print(f'Bitsize: {key_length} is not Enabled')
             print('Enabled Bitsizes: "[-b 2048 3072 4096 6144 7680 8192]"')
             exit(1)
