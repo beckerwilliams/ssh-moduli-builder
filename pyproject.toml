@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "moduli_assembly"
-version = "0.10.1"
+version = "0.10.3"
 description = "Command Line Utility to build complete [/usr/local]/etc/ssh/moduli_file"
 authors = ["Ron Williams <becker.wiliams@gmail.com>"]
 readme = "README.md"
 packages = [
 	{ include = "moduli_assembly" },
 	{ include = "moduli_assembly/scripts" },
-	{ include = "moduli_assembly/config_manager" }
+	{ include = "config_manager" }
 ]
 
 [tool.poetry.dependencies]

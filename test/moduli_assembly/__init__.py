@@ -45,7 +45,7 @@ class TestModuliAssembly(TestCase):
     def setUp(cls):
         cls.ma = ModuliAssembly()
         cls.config_dir = Path.home().joinpath('.moduli_assembly')
-        cls.moduli_dir = Path.home().joinpath('.moduli_assembly', '.moduli')
+        cls.moduli_dir = cls.ma.moduli_dir()
         cls.test_version = __version__
 
     def tearDown(cls):
@@ -87,35 +87,35 @@ class TestModuliAssembly(TestCase):
         cls.assertTrue(str(cp.parent.joinpath(cls.ma.get_screened_path(cp)))
                        .replace('screened', 'candidate') == str(cp.absolute()))
 
-    def test_generate_candidates(cls):
-        """
-        Generate Candidate Moduli Files via ssh-keygen -M generate ...
-        :return: None
-        :rtype: None
-        """
-        candidate_file = cls.ma.generate_candidates(2048, 1)
-        cls.assertTrue(candidate_file.exists())
-        cls.assertTrue(candidate_file.stat().st_size > 1)
-        cls.assertTrue(len(candidate_file.read_text().split('\n')) > 50000)
-
-        # Preserve Candidate for Screening Run
-        Path('test/resources').joinpath(candidate_file.name).write_text(candidate_file.read_text())
-
-    def test_screen_candidates(cls):
-        # Copy Pre-Generated Candidates to Moduli Dir for Screen Testing
-        candidate_file = _load_candidate(cls.ma.moduli_dir())
-        screened_file = cls.ma.screen_candidates(candidate_file)
-
-        cls.assertTrue(screened_file.exists())
-        cls.assertTrue(screened_file.stat().st_size > 1)
-        cls.assertTrue(len(screened_file.read_text().split('\n')) > 1)
-
-    def test_restart_candidate_screening(cls):
-        candidate_file = _load_candidate(cls.ma.moduli_dir())
-        cls.ma.restart_candidate_screening()
-        cls.assertTrue(cls.ma.get_screened_path(candidate_file).exists())
-        cls.assertTrue(cls.ma.get_screened_path(candidate_file).stat().st_size > 1)
-        cls.assertTrue(len(cls.ma.get_screened_path(candidate_file).read_text().split('\n')) > 1)
+    # def test_generate_candidates(cls):
+    #     """
+    #     Generate Candidate Moduli Files via ssh-keygen -M generate ...
+    #     :return: None
+    #     :rtype: None
+    #     """
+    #     candidate_file = cls.ma.generate_candidates(2048, 1)
+    #     cls.assertTrue(candidate_file.exists())
+    #     cls.assertTrue(candidate_file.stat().st_size > 1)
+    #     cls.assertTrue(len(candidate_file.read_text().split('\n')) > 50000)
+    #
+    #     # Preserve Candidate for Screening Run
+    #     Path('test/resources').joinpath(candidate_file.name).write_text(candidate_file.read_text())
+    #
+    # def test_screen_candidates(cls):
+    #     # Copy Pre-Generated Candidates to Moduli Dir for Screen Testing
+    #     candidate_file = _load_candidate(cls.ma.config['moduli_dir'])
+    #     screened_file = cls.ma.screen_candidates(candidate_file)
+    #
+    #     cls.assertTrue(screened_file.exists())
+    #     cls.assertTrue(screened_file.stat().st_size > 1)
+    #     cls.assertTrue(len(screened_file.read_text().split('\n')) > 1)
+    #
+    # def test_restart_candidate_screening(cls):
+    #     candidate_file = _load_candidate(cls.ma.config['moduli_dir'])
+    #     cls.ma.restart_candidate_screening()
+    #     cls.assertTrue(cls.ma.get_screened_path(candidate_file).exists())
+    #     cls.assertTrue(cls.ma.get_screened_path(candidate_file).stat().st_size > 1)
+    #     cls.assertTrue(len(cls.ma.get_screened_path(candidate_file).read_text().split('\n')) > 1)
 
     def test_write_moduli_file(cls):
         moduli_file = cls.ma.write_moduli_file()

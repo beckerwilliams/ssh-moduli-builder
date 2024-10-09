@@ -7,7 +7,7 @@ from pathlib import PosixPath as Path
 from random import shuffle
 
 from moduli_assembly import __version__
-from moduli_assembly.config_manager.config_manager import ConfigManager
+from moduli_assembly.config_manager import ConfigManager
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -71,20 +71,20 @@ class ModuliAssembly(ConfigManager):
         return Path(self.config['config_dir']).joinpath(self.config['moduli_dir'])
 
     @classmethod
-    def __init__(self, config: dict = None) -> None:
-        if config:
-            self.config = config
-        else:
-            self.config = default_config()
+    def __init__(self, config: dict = None, root_dir: Path = None) -> None:
+
+        if not config:
+            config = default_config()
+            if not root_dir:
+                root_dir = config['moduli_assembly']
+        super().__init__(config, root_dir)
 
         for attr in ['config_dir', 'config_file', 'moduli_dir', 'moduli_file', 'generator_type', 'auth_bitsizes']:
             if attr not in self.config:
                 raise AttributeError(f'Config Required Attribute: {attr}: Missing')
 
-        super().__init__(self.config)
-        # Make .moduli directory in config directory
-        # if not self.moduli_dir().parent:  # Root directory name to user's $HOME
-        #     md = Path.home().joinpath(self.moduli_dir())
+        # Operational Config has 'moduli_dir' as full path under selected config dir
+        self.config['moduli_dir'] = self.config['config_dir'].joinpath(self.config['moduli_dir'])
         self.moduli_dir().mkdir(exist_ok=True)
 
     @classmethod
@@ -100,11 +100,11 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def create_checkpoint_filename(self, path: Path) -> Path:
-        return self.moduli_dir().joinpath(f'.{path.name}')
+        return self.config['moduli_dir'].joinpath(f'.{path.name}')
 
     @classmethod
     def create_candidate_path(self, key_length: int):
-        candidate_path = self.moduli_dir().joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
+        candidate_path = self.config['moduli_dir'].joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
         candidate_path.touch()
         return candidate_path
 
@@ -210,5 +210,5 @@ class ModuliAssembly(ConfigManager):
         _fs_delete(self.moduli_dir())
 
     @classmethod
-    def print_config(self):
-        super().print_config()
+    def print_config(self, path: Path = None):
+        super().print_config(self)
