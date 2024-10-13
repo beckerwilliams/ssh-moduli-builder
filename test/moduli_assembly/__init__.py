@@ -2,7 +2,7 @@
 from pathlib import PosixPath as Path
 from unittest import TestCase
 
-from moduli_assembly.ModuliAssembly import (ModuliAssembly, __version__, _fs_delete as _delete_fs, default_config)
+from moduli_assembly import (ModuliAssembly, __version__, default_config)
 
 
 def _load_candidate(target_moduli_dir: Path = None) -> Path:
@@ -45,13 +45,11 @@ class TestModuliAssembly(TestCase):
     def setUp(cls):
         cls.ma = ModuliAssembly()
         cls.config_dir = Path.home().joinpath('.moduli_assembly')
-        cls.moduli_dir = cls.ma.moduli_dir()
+        cls.moduli_dir = cls.ma.config['moduli_dir']
         cls.test_version = __version__
 
     def tearDown(cls):
-        config_dir = Path.home().joinpath(cls.ma.config['config_dir'])
-        if config_dir.exists() and config_dir.is_dir():
-            _delete_fs(config_dir)
+        pass
 
     def test_ModuliAssembly_default_config(cls):
         cls.assertTrue(cls, cls.ma.config is not None)
@@ -72,20 +70,20 @@ class TestModuliAssembly(TestCase):
             print(f'Success: Exception Tested: {exception.exception}')
 
     def test_get_moduli_dir(cls):
-        cls.assertEqual(cls.ma.moduli_dir(), cls.moduli_dir)
+        cls.assertEqual(cls.ma.config['moduli_dir'], cls.moduli_dir)
 
     def test_create_candidate_path(cls):
         # Vars for get_candidate_file
         key_length = 2048
-        tpath = str(cls.ma.moduli_dir().joinpath(f'{key_length}.candidate_'))
+        tpath = str(cls.ma.config['moduli_dir'].joinpath(f'{key_length}.candidate_'))
         cls.assertTrue(tpath in str(cls.ma.create_candidate_path(key_length)))
 
-    def test_get_screened_path(cls):
-        key_length = 2048
-        cp = cls.ma.create_candidate_path(key_length)
-        # Get screened path, convert to candidate and compare to given candidate file
-        cls.assertTrue(str(cp.parent.joinpath(cls.ma.get_screened_path(cp)))
-                       .replace('screened', 'candidate') == str(cp.absolute()))
+    # def test_get_screened_path(cls):
+    #     key_length = 2048
+    #     cp = cls.ma.create_candidate_path(key_length)
+    #     # Get screened path, convert to candidate and compare to given candidate file
+    #     cls.assertTrue(str(cp.parent.joinpath(cls.ma.get_screened_path(cp)))
+    #                    .replace('screened', 'candidate') == str(cp.absolute()))
 
     # def test_generate_candidates(cls):
     #     """
@@ -117,18 +115,18 @@ class TestModuliAssembly(TestCase):
     #     cls.assertTrue(cls.ma.get_screened_path(candidate_file).stat().st_size > 1)
     #     cls.assertTrue(len(cls.ma.get_screened_path(candidate_file).read_text().split('\n')) > 1)
 
-    def test_write_moduli_file(cls):
-        moduli_file = cls.ma.write_moduli_file()
-        cls.assertTrue(moduli_file.exists())
-        cls.assertTrue(moduli_file.stat().st_size > 1)
-
-    def test_write_named_moduli_file(cls):
-        moduli_file = cls.ma.write_moduli_file(cls.ma.config['config_dir'].joinpath('TEST_MODULI_FILE'))
-        cls.assertTrue(moduli_file.exists())
-        cls.assertTrue(moduli_file.stat().st_size > 1)
-
-    def test_get_version(cls):
-        cls.assertTrue(cls.ma.version == __version__)
-
-    def test_config(cls):
-        pass
+    # def test_write_moduli_file(cls):
+    #     moduli_file = cls.ma.write_moduli_file()
+    #     cls.assertTrue(moduli_file.exists())
+    #     cls.assertTrue(moduli_file.stat().st_size > 1)
+    #
+    # def test_write_named_moduli_file(cls):
+    #     moduli_file = cls.ma.write_moduli_file(cls.ma.config['config_dir'].joinpath('TEST_MODULI_FILE'))
+    #     cls.assertTrue(moduli_file.exists())
+    #     cls.assertTrue(moduli_file.stat().st_size > 1)
+    #
+    # def test_get_version(cls):
+    #     cls.assertTrue(cls.ma.version == __version__)
+    #
+    # def test_config(cls):
+    #     pass

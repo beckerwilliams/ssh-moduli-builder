@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from pathlib import PosixPath as Path
 
-from moduli_assembly.ModuliAssembly import (ModuliAssembly)
+from moduli_assembly.__init__ import (ModuliAssembly)
 
 
 def cl_args():
