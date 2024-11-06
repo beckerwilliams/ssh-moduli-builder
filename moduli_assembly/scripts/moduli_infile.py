@@ -11,7 +11,7 @@ def args():
 
 
 def moduli_infile(infile):
-    authorized_bitsizes = (3071, 4095, 6143, 7679, 8191)
+    authorized_bitsizes = (2047, 3071, 4095, 6143, 7679, 8191)
     bitsizes = {}
     for bs in authorized_bitsizes:
         bitsizes[str(bs)] = 0

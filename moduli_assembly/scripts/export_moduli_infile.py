@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-print('''#!/bin/bash
+print('''#!/usr/bin/env bash
 
 WCL="/usr/bin/wc -l"
 GREP=/usr/bin/grep

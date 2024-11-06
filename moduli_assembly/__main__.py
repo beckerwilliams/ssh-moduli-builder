@@ -56,6 +56,8 @@ def main() -> None:
     # Process Configuration File
     cm = ModuliAssembly()
 
+    # Functions by Argument(s)
+
     if args.version:
         print(f'{parser.prog}: Version: {cm.version}')
         exit(0)
@@ -75,17 +77,16 @@ def main() -> None:
 
     # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
-        cm.write_moduli_file(cm.config['moduli_file'])
+        cm.create_moduli_file(cm.config['moduli_file'])
         print(f'Wrote moduli file, {cm.config['moduli_file']}, and exiting.')
         exit(0)
 
     if args.restart:
         print(f'Restarted candidate screening')
         cm.restart_candidate_screening()
-        cm.write_moduli_file('MODULI_FILE')
+        cm.create_moduli_file()
         exit(0)
 
-    # -a, --all trumps any provided key_length parameters
     if args.all:
         bitsizes = list(cm.config["auth_key_lengths"])
     elif args.bitsizes:
@@ -106,16 +107,19 @@ def main() -> None:
 
         run_bits[key_length] = bitsizes.count(key_length)
 
+    # Generate Candididate Moduli from desired run bits (key_length)
     candidates = [cm.generate_candidates(int(key_length), run_bits[key_length])
                   for key_length in run_bits if run_bits[key_length]]
 
-    # Screen Candidates, Log Screened File Paths
+    # Log Screened File Paths
     with cm.config["config_dir"].joinpath('screened-files.txt').open('a') as cf:
         [cf.write(f'Screened File: {cm.get_screened_path(candidate)}\n') for candidate in candidates]
-        [cm.screen_candidates(candidate) for candidate in candidates]
+
+    # Screen Candidates
+    [cm.screen_candidates(candidate) for candidate in candidates]
 
     # Create /etc/ssh/moduli file
-    cm.write_moduli_file('MODULI_FILE')
+    cm.create_moduli_file()
 
 
 if __name__ == '__main__':

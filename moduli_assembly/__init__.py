@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
-
 import subprocess
 import tempfile
 from datetime import datetime, timezone
 from pathlib import PosixPath as Path
 from random import shuffle
 
-from config_manager import ConfigManager
+from config_manager import (ConfigManager)
 
-__version__ = '0.10.3'
+__version__ = '0.10.7'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -18,8 +16,8 @@ def ISO_UTC_TIMESTAMP() -> str:
 def default_config():
     """
     tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
-    :return:
-    :rtype:
+    :return: default_config
+    :rtype: dict
     """
     return {
         'generator_type': 2,
@@ -29,39 +27,6 @@ def default_config():
         'moduli_dir': '.moduli',
         'moduli_file': 'MODULI_FILE'
     }
-
-
-_config_required_attrs = default_config().keys()
-
-
-def to_be_implemented(function: str):
-    print(f'To be Implemented: {function}')
-
-
-def _fs_delete(dir_path: Path):
-    protected_dirs = [
-        Path('/'),
-        Path('/home'),
-        Path('/usr'),
-        Path('/usr/local'),
-        Path('/var'),
-        Path('/opt'),
-        Path('/usr/opt'),
-        Path('/var/opt')
-    ]
-    if dir_path in protected_dirs:
-        raise PermissionError(f'Illegal Path Selected: {dir_path}')
-
-    if dir_path.exists:
-        if dir_path.is_dir():
-            for fobject in dir_path.iterdir():
-                if fobject.is_dir():
-                    _fs_delete(fobject)
-                    fobject.rmdir()
-                else:
-                    fobject.unlink()
-        else:
-            raise TypeError('Error: supplied path is not a directory')
 
 
 class ModuliAssembly(ConfigManager):
@@ -79,26 +44,19 @@ class ModuliAssembly(ConfigManager):
         if not config:
             config = default_config()
 
-        for attr in _config_required_attrs:
+        # Validate Attributes
+        for attr in default_config().keys():
             if attr not in config:
                 raise AttributeError(f'Config Required Attribute: {attr}: Missing')
 
         super().__init__(config, root_dir)
 
         # Operational Config has 'moduli_dir' as full path under selected config dir
-        self.config['moduli_dir'] = self.config['config_dir'].joinpath(self.config['moduli_dir'])
+        self.config['moduli_dir'] = config['config_dir'].joinpath(config['moduli_dir'])
         self.config['moduli_dir'].mkdir(exist_ok=True)
-
-    # @classmethod
-    # def __del__(self):
-    #     """
-    #     Override ConfigManager's __del__
-    #     :return: None
-    #     :rtype:
-    #     :raises: FileNotFoundError
-    #     :raises: FileExistsError
-    #     """
-    #     super().__del__()
+        self.config['moduli_file'] = config['config_dir'].joinpath(config['moduli_file'])
+        self.config['auth_bitsizes'] = config['auth_bitsizes']
+        self.config['generator_type'] = config['generator_type']
 
     @classmethod
     def create_checkpoint_filename(self, path: Path) -> Path:
@@ -170,24 +128,26 @@ class ModuliAssembly(ConfigManager):
         return candidate_file
 
     @classmethod
-    def write_moduli_file(self, pathname: Path = None) -> Path:
-        if not pathname:
-            pathname = Path(self.config['config_dir']).joinpath(self.config['moduli_file'])
-        else:
-            pathname = Path(pathname)  # a Hack
+    def create_moduli_file(self, f_path: Path = None) -> Path:
+        if not f_path:
+            f_path = self.config['config_dir'].joinpath(self.config['moduli_file'])
 
         # Append Time Stamp to File
         ts = ISO_UTC_TIMESTAMP()
-        ts_name = '_'.join((str(pathname.absolute()), ts))
+        ts_name = '_'.join((str(f_path.absolute()), ts))
 
         path = Path(ts_name)
         path.touch()
-        if pathname.exists():
-            pathname.unlink()
-        pathname.symlink_to(path, target_is_directory=False)
+
+        # if pathname.exists():
+        if f_path.exists():
+            f_path.unlink(missing_ok=True)
+
+        f_path.symlink_to(path, target_is_directory=False)
 
         # Collect Screened Moduli
         with path.open('w') as mfp:
+            # Here we collect all screened moduli files in .moduli_assembly/.moduli
             mfp.write(f'#/etc/ssh/moduli: moduli_assembly: {ts}\n')
             moduli = [moduli for moduli in
                       self.config['moduli_dir'].glob('????.screened*')]
@@ -205,12 +165,9 @@ class ModuliAssembly(ConfigManager):
     def restart_candidate_screening(self):
         for modulus_file in [moduli for moduli in self.config['moduli_dir'].glob('????.candidate*')]:
             self.screen_candidates(modulus_file)
-            self.write_moduli_file(modulus_file)
+            # self.create_moduli_file(modulus_file)
 
     @classmethod
     def clear_artifacts(self):
-        _fs_delete(self.config['moduli_dir'])
-
-    @classmethod
-    def print_config(self, path: Path = None):
-        super().print_config()
+        for file in self.config['moduli_file'].glob('????.*'):
+            file.unlink()
