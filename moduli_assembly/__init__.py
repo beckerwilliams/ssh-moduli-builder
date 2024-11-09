@@ -15,13 +15,12 @@ def ISO_UTC_TIMESTAMP() -> str:
 
 def default_config():
     """
-    tbd - REMOVE Keylength 2048 BEFORE PRODUCTION
     :return: default_config
     :rtype: dict
     """
     return {
         'generator_type': 2,
-        'auth_bitsizes': ['2048', '3072', '4096', '6144', '7680', '8192'],
+        'auth_bitsizes': ['3072', '4096', '6144', '7680', '8192'],
         'config_dir': '.moduli_assembly',
         'config_file': '.config',
         'moduli_dir': '.moduli',
@@ -75,13 +74,13 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def screen_candidates(self, candidate_path: Path) -> Path:
-        print(f'Screening {candidate_path} for Safe Primes (generator={self.config['generator_type']})')
+        print(f'Screening {candidate_path} for Safe Primes (generator={self.config["generator_type"]})')
 
         try:
             screen_command = [
                 'ssh-keygen',
                 '-M', 'screen',
-                '-O', f'generator={self.config['generator_type']}',
+                '-O', f'generator={self.config["generator_type"]}',
                 '-O', f'checkpoint={self.create_checkpoint_filename(candidate_path)}',
                 '-f', candidate_path,
                 self.get_screened_path(candidate_path)
@@ -89,7 +88,7 @@ class ModuliAssembly(ConfigManager):
             subprocess.run(screen_command, text=True, check=True)
 
         except subprocess.CalledProcessError as e:
-            print(f'Error screening candidates for {candidate_path.name.split('.')[0]} bit length: {e}')
+            print(f'Error screening candidates for {candidate_path.name.split(".")[0]} bit length: {e}')
             exit(1)
 
         # We've screened the Candidates, Discard File

@@ -78,11 +78,11 @@ def main() -> None:
     # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
         cm.create_moduli_file(cm.config['moduli_file'])
-        print(f'Wrote moduli file, {cm.config['moduli_file']}, and exiting.')
+        print(f'Wrote moduli file, {cm.config["moduli_file"]}, and exiting.')
         exit(0)
 
     if args.restart:
-        print(f'Restarted candidate screening')
+        print(f'Restarting candidate screening')
         cm.restart_candidate_screening()
         cm.create_moduli_file()
         exit(0)
@@ -102,7 +102,7 @@ def main() -> None:
 
         if key_length not in cm.config["auth_bitsizes"]:
             print(f'Bitsize: {key_length} is not Enabled')
-            print('Enabled Bitsizes: "[-b 2048 3072 4096 6144 7680 8192]"')
+            print('Enabled Bitsizes: "[-b 3072 4096 6144 7680 8192]"')
             exit(1)
 
         run_bits[key_length] = bitsizes.count(key_length)

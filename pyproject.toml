@@ -1,18 +1,23 @@
 [tool.poetry]
 name = "moduli_assembly"
-dynamic = ["version"]
-#version = "0.10.7"
+version = "0.10.7"
 description = "Command Line Utility to build complete [/usr/local]/etc/ssh/moduli_file"
 authors = ["Ron Williams <becker.wiliams@gmail.com>"]
 readme = "README.md"
 packages = [
+	{ include = "config_manager" },
 	{ include = "moduli_assembly" },
-	{ include = "moduli_assembly/scripts" },
-	{ include = "config_manager" }
+	{ include = "moduli_assembly/scripts" }
 ]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+
+[tool.poetry.scripts]
+main = "moduli_assembly.__main__:main"
+export_bash_builder = "moduli_assembly.scripts.exports:export_bash_builder"
+export_csh_builder = "moduli_assembly.scripts.exports:export_csh_builder"
+export_moduli_infile = "moduli_assembly.scripts.exports:export_moduli_infile"
 
 [build-system]
 requires = ["poetry-core"]
