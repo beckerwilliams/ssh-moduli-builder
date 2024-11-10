@@ -6,7 +6,7 @@ from random import shuffle
 
 from config_manager import (ConfigManager)
 
-__version__ = '0.10.8'  # Dependent on pyproject.toml VERSION Manual Sync
+__version__ = '0.10.9'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
