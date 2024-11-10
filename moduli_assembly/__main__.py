@@ -88,7 +88,7 @@ def main() -> None:
         exit(0)
 
     if args.all:
-        bitsizes = list(cm.config["auth_key_lengths"])
+        bitsizes = list(cm.config['auth_bitsizes'])
     elif args.bitsizes:
         bitsizes = args.bitsizes
     else:
@@ -100,7 +100,7 @@ def main() -> None:
     run_bits = {}
     for key_length in bitsizes:
 
-        if key_length not in cm.config["auth_bitsizes"]:
+        if key_length not in cm.config['auth_bitsizes']:
             print(f'Bitsize: {key_length} is not Enabled')
             print('Enabled Bitsizes: "[-b 3072 4096 6144 7680 8192]"')
             exit(1)

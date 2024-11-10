@@ -58,9 +58,9 @@ https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assemb
 
 ### When Complete, Check Frequency Distributio of Created Moduli
 
-`python -m moduli_assembly.scripts.moduli_infile -f ${MODULI-ASSEMBLY-DIR}/MODULI_FILE`
+`python -m moduli_assembly.scripts.moduli_infile -f ${MODULI_ASSEMBLY_DIR}/MODULI_FILE`
 
-- where ${MODULI-ASSEMBLY} is ${HOME}/.moduli-assembly by default
+- where ${MODULI_ASSEMBLY_DIR} is ${HOME}/.moduli_assembly by default
 
 `
 
