@@ -133,7 +133,7 @@ The following Shell Scripts will start 4 process in parallel, and produce a Comp
 
 `python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh`
 
-#### Bourne Again Shell (bash) Moduli Runer
+#### Bourne Again Shell (bash) Moduli Runner
 
 `python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh`
 
@@ -151,7 +151,9 @@ _Note: This takes about 7 Days on a Quad Core Intel i7_
 
 #### c-shell (csh)
 
-`./build_moduli_file.csh >& all.gen.log &`
+`./build_moduli_file.csh`
+
+Log File `all.gen.log`
 
 ### Moduli Frequency Distribution
 
