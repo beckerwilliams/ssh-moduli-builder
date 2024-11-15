@@ -1,8 +1,6 @@
-# DEVELOPMENT
+# Packaging
 
 ## `build wheel`
-
-## Build
 
 ### Dependencies
 

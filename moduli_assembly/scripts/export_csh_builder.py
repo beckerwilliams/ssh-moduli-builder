@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
 def main():
+    """
+
+    :return: Text of Bash Shell Moduli Builder
+    :rtype: text
+    """
     print('''#!/usr/bin/env csh
     
     set NICE="nice +15"
@@ -16,4 +21,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    exit(main())

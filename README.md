@@ -6,15 +6,15 @@ Scripts to generate well constructed moduli file
 
 ## Table of Contents
 
-- [Platform Dependencies](#platform-dependencies)
+### [Platform Dependencies](#platform-dependencies)
 
-- [Installation](#installation)
+### [Installation](#installation)
 
-- [Usage](#usage)
+### [Usage](#usage)
 
-- [Utility Scripts](#utility-scripts)
+### [Utility Scripts](#utility-scripts)
 
-- [License](#license)
+### [License](#mit-license)
 
 ## Platform Dependencies
 
@@ -39,19 +39,22 @@ Note: _Elapsed time for complete run is about 7 **days** on an Intel Quad Core i
 
 ### Capabilities
 
-- Builds Complete file With One Command
-    - python -m moduli_assembly --all
+Builds Complete file With One Command
+
+- python: `python -m moduli_assembly --all`
+
+Provides Scripts for managing parallel build of moduli
+
+- bash: `python -m moduli.scripts.export_bash_runner > moduli_runner.sh`
 
 
-- Provides Scripts for managing parallel build of moduli
+- csh: `python -m moduli.scripts.export_csh_runner > moduli_runner.csh`
 
-    - bash: `python -m moduli.scripts.export_bash_runner > moduli_runner.sh`
 
-    - csh: `python -m moduli.scripts.export_csh_runner > moduli_runner.csh`
+- set execute bit: `chmod +x moduli_runner.*sh`
 
-    - set execute bit: `chmod +x moduli_runner.*sh`
 
-    - build moduli file: `./moduli_runner.[c]sh&`
+- build moduli file: `./moduli_runner.[c]sh&`
 
 ## Installation
 
@@ -70,7 +73,7 @@ In a working directory, Create a python virtual environment, install ssh-moduli-
     - C-Shell: `source .venv/bin/activate.csh`
 
 - Install Wheel
-    - ```pip install ./moduli_assembly-<version>-py3-none-any.whl```
+    - `pip install ./moduli_assembly-<version>-py3-none-any.whl`
 
 ## Usage
 
@@ -126,15 +129,15 @@ The following Shell Scripts will start 4 process in parallel, and produce a Comp
 
 ### Export Shell Scripts
 
-##### C Shell (csh) Moduli Runner
+#### C Shell (csh) Moduli Runner
 
 `python -m moduli_assembly.scripts.export_csh_runner > build_moduli_file.csh`
 
-##### Bourne Again Shell (bash) Moduli Runer
+#### Bourne Again Shell (bash) Moduli Runer
 
 `python -m moduli_assembly.scripts.export_bash_runner > build_moduli_file.sh`
 
-##### Set the `exec` bit on Scripts
+#### Set the `exec` bit on Scripts
 
 `chmod +x ./build_moduli_file.*sh`
 
@@ -184,15 +187,10 @@ or
 Modulus Frequency of /etc/ssh/moduli:
 
     Mod  Count
-
     3071 80
-
     4095 94
-
     6143 87
-
     7679 108
-
     8191 117
 
 #### Retrieve last generated MODULI file
@@ -216,8 +214,6 @@ or
 `cp ssh-moduli /usr/local/etc/ssh/moduli`
 
 #### That's It!
-
-____
 
 ## Reference
 
@@ -256,5 +252,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-#  

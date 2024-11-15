@@ -11,6 +11,13 @@ def args():
 
 
 def moduli_infile(infile):
+    """
+    Determine Frequency Distribution of Moduli Keylengths in Local [/usr/local]/etc/ssh/moduli
+    :param infile: Path to moduli file
+    :type infile: PosixPath
+    :return: Frequency Table of Moduli Keylengths in Selected moduli file
+    :rtype: text
+    """
     authorized_bitsizes = (2047, 3071, 4095, 6143, 7679, 8191)
     bitsizes = {}
     for bs in authorized_bitsizes:

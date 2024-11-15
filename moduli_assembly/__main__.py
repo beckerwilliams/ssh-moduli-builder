@@ -7,6 +7,11 @@ from moduli_assembly.__init__ import (ModuliAssembly)
 
 
 def cl_args():
+    """
+
+    :return: Argument Parser
+    :rtype: ArgumentParser
+    """
     parser = ArgumentParser(prog='Moduli Assembly', description='Utility to automate creation of SSH2 Moduli Files')
     parser.add_argument('-b', '--bitsizes',
                         nargs='*',
@@ -49,6 +54,11 @@ def cl_args():
 
 
 def main() -> None:
+    """
+    Main Entry for All Moduli Assembly Operations
+    :return: None
+    :rtype: None
+    """
     # Process Arguments
     parser = cl_args()
     args = parser.parse_args()
@@ -123,4 +133,4 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    exit(main())
