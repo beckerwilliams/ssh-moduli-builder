@@ -1,6 +1,8 @@
-# tldr;
+.. ssh-moduli-builder
 
-You're here - ok - here's the rationale.
+# Rationale
+
+## You're here - ok - here's the rationale.
 
 SSHDs installation contains a file of random moduli (safe primes) across a set of modulus key lengths.
 These moduli provide the basis for SSHDs session keys.

@@ -1,4 +1,4 @@
-# SSH2 Moduli File Generator `moduli-assembly`
+# SSH2 Moduli File Generator
 
 Scripts to generate well constructed moduli file
 
