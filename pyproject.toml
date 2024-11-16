@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [
 	{ include = "config_manager" },
 	{ include = "moduli_assembly" },
-	{ include = "moduli_assembly/scripts" },
+	{ include = "moduli_assembly/scripts" }
 ]
 
 [tool.poetry.dependencies]

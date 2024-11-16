@@ -1,8 +1,16 @@
 Change Log
 ==========
 
+
+2024-11-15
+----------
+
+  * ModuliAssembly: '0.10.11'
+    * rationalized documentation, completed reformat of produced doc
+    ~r
+
 2024-11-14
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.11'
     * update changelog.md
@@ -20,7 +28,7 @@ Change Log
     ~r
 
 2024-11-09
-++++++++++
+----------
 
   * Update issue templates
   * ModuliAssembly: '0.10.9'
@@ -36,7 +44,7 @@ Change Log
     ~r
 
 2024-11-08
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.7'
     * Fixed invalid quotes in f' statements.
@@ -44,35 +52,35 @@ Change Log
     ~r
 
 2024-11-05
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.1'
     * Checkpoint - Four Unittests Succeed (__init2__) *
     ~r
 
 2024-10-12
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.1'
     * Checkpoint *
     ~r
 
 2024-10-08
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.1'
     * Checkpoint *
     ~r
 
 2024-10-07
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.1'
     * Checkpoint *
     ~r
 
 2024-10-05
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.1'
     refactored 'get_moduli_dir' to 'moduli_dir'
@@ -112,7 +120,7 @@ Change Log
     ~r
 
 2024-10-03
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.0'
     Tested-by: Python Unittests
@@ -130,7 +138,7 @@ Change Log
     ~r
 
 2024-10-01
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.0'
     Checkpoint - Successful Tests
@@ -144,14 +152,14 @@ Change Log
     ~r
 
 2024-09-30
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.0'
     Checkpoint
     ~r
 
 2024-09-24
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.0'
     * Build ModuliAssembly classmethods from moduli_assembly functions.
@@ -160,7 +168,7 @@ Change Log
     ~r
 
 2024-09-23
-++++++++++
+----------
 
   * ModuliAssembly: '0.10.0'
     * Checkpoint
@@ -176,7 +184,7 @@ Change Log
     ~r
 
 2024-09-22
-++++++++++
+----------
 
   * moduli-assembly: v0.9.6
     * test Generate Candidates
@@ -185,7 +193,7 @@ Change Log
     ~r
 
 2024-09-21
-++++++++++
+----------
 
   * moduli-assembly: v0.9.6
     * Added test_generate_candidates - Successful Unittest
@@ -203,7 +211,7 @@ Change Log
     ~r
 
 2024-09-16
-++++++++++
+----------
 
   * moduli-assembly: v0.9.6
     * Updated Version of Distribution Files
@@ -218,7 +226,7 @@ Change Log
     ~r
 
 2024-09-14
-++++++++++
+----------
 
   * moduli-assembly: v0.9.5
     * README.md - Specified OpenSSH2 (needed for support of `-M generate` and `-M screen` functions.
@@ -232,7 +240,6 @@ Change Log
     ** and reserving `with Path.open('w') as file` for sequential writes to an accumulator file like ./moduli/`MODULI`
     * Final Edits
     ~r
-
   * moduli-assembly: v0.9.5
     * Cleanup
     ** Removed `randomize_file_record_order` in lieu of using `random.shuffle()` directly when reading
@@ -243,7 +250,7 @@ Change Log
     ~r
 
 2024-09-12
-++++++++++
+----------
 
   * moduli-assembly: v0.9.1,
     operational arguments
@@ -259,60 +266,49 @@ Change Log
     ~r
 
 2024-09-11
-++++++++++
+----------
 
   * Completed moduli_assembly_conf.py to manage storage and fetching of application configuration file
     ~r
-
   * RC 3
     Added Config File Processing: moduli_assembly_conf.py
     * save_conf() and load_conf() Operating Properly
     ~r
 
 2024-09-09
-++++++++++
+----------
 
   * RC 2
     * Adding Distribution Directory and Currently Build `sdist` and `wheel` format files.
     ~r
-
   * Delete dist/moduli_assembly-0.3.1-py3-none-any.whl
   * Delete dist/moduli_assembly-0.3.1.tar.gz
   * RC 2
     * README.md Edits
     ~r
-
   * RC 2
     * Edited README.md for clarity
     * Verified Exportable Script Operation
     * Verified in module script moduli_infil
     ~r
-
   * * Added Moduli Infile Endpoint and
     * moduli_infile Bash Script
-
+    ~r
   * Added moduli_infile to profile bit frequencies of moduli
     ~r
 
-
 2024-09-06
-++++++++++
+----------
 
   * * Release Candidate 1
-
     Package Wheel Loads and Operates properly
-
-
+    ~r
   * Reformatted Project and Renamed
     Now Supports
     * -a, --all: Generating SSH Moduli Files with all bitsizes [2048, 3072, 4096, 6144, 7680, 8192]
     * -r, --restart: Restarts Interrupted Candididate Screening
     * -w, --write: Writes MODULI File with Currently Screened Candidates
     * -b, --bitsizes [list of authorized bitsizes, multiples generate larger candidate files
-
     Operational and ready to share
     ~r
-
   * Initial commit
-    ~r
-
