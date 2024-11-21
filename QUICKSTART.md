@@ -7,8 +7,8 @@ five steps:
 Preparation: Download project Wheel from GitHub
 
 `curl -G
-https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assembly-0.8.3-py3-none-any.whl
--o moduli_assembly-<version>-py3-none-any.whl`
+https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assembly-0.10.12-py3-none-any.whl
+-o moduli_assembly-0.10.12-py3-none-any.whl`
 
 ## Create and/or Startup Python venv
 
@@ -18,7 +18,7 @@ https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assemb
 
 ## Install moduli-assembly _wheel_
 
-`pip install moduli_assembly-<version>-py3-none-any.whl`
+`pip install moduli_assembly-0.10.12-py3-none-any.whl`
 
 ## Export Bash Build Script
 

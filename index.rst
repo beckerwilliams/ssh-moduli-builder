@@ -9,18 +9,18 @@ ssh-moduli-builder
 
     README
 
-    moduli_assembly
+    QUICKSTART
+    DOCUMENTATION
 
-    QuickStart
-    Documentation
-    PythonPackaging
+    PYTHON_PACKAGING
+
+    MODULI_ASSEMBLY
 
     RATIONALE
-
-    changelog
+    LICENSE
+    CHANGELOG
 
     .github/ISSUE_TEMPLATE/bug_report
-
     .github/ISSUE_TEMPLATE/feature_request
 
 

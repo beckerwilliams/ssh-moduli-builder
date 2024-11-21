@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "moduli_assembly"
-version = "0.10.11"
+version = "0.10.12"
 description = "Command Line Utility to build complete [/usr/local]/etc/ssh/moduli_file]"
 authors = ["Ron Williams <becker.williams@gmail.com>"]
 readme = "README.md"
