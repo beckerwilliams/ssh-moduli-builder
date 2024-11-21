@@ -1,10 +1,22 @@
-Change Log
-==========
+Changelog
+=========
 
+2024-11-20
+----------
+
+  * ModuliAssembly: '0.10.12'
+    * Storing runtime test configurations
+    * RC2
+    ~r
 
 2024-11-15
 ----------
 
+  * ModuliAssembly: '0.10.11'
+    * Release Candidate
+    * Updated Changelong
+    * Updated packaging
+    ~r
   * ModuliAssembly: '0.10.11'
     * rationalized documentation, completed reformat of produced doc
     ~r
