@@ -1,9 +1,20 @@
 Changelog
 =========
 
+2024-11-28
+----------
+
+* ModuliAssembly: '1.0.1'
+* First 'Production' Release
+~r
+
 2024-11-20
 ----------
 
+  * ModuliAssembly: '0.10.12'
+    * Updated Changelog
+    * RC2
+    ~r
   * ModuliAssembly: '0.10.12'
     * Storing runtime test configurations
     * RC2

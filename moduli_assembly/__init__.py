@@ -6,18 +6,24 @@ from random import shuffle
 
 from config_manager import (ConfigManager)
 
-__version__ = '0.10.12'  # Dependent on pyproject.toml VERSION Manual Sync
+__version__ = '1.0.1'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
+    """
+
+    :return: Current ISO TimeStamp, TZ=UTC
+    :rtype: str
+    """
     return datetime.now(tz=timezone.utc).isoformat()
 
 
-def default_config():
-    '''
-    :return: default_config
+def default_config() -> dict:
+    """
+
+    :return: Sufficient configuration for Moduli_Assembly Operation
     :rtype: dict
-    '''
+    """
     return {
         'generator_type': 2,
         'auth_bitsizes': ['3072', '4096', '6144', '7680', '8192'],
@@ -32,23 +38,23 @@ class ModuliAssembly(ConfigManager):
 
     @property
     def version(self) -> str:
-        '''
+        """
 
         :return: version
         :rtype: str
-        '''
+        """
 
         return __version__
 
     @classmethod
     def __init__(self, config: dict = None, root_dir: Path = None) -> None:
-        '''
+        """
 
         :param config: Moduli Assembly Config
         :type config: dict
         :param root_dir: moduli_assembly configuration's root directory
         :type root_dir: PosixPath
-        '''
+        """
         if not root_dir:
             root_dir = Path.home()
 
@@ -71,49 +77,49 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def create_checkpoint_filename(self, path: Path) -> Path:
-        '''
+        """
 
         :param path: name of checkpoint file
         :type path: PosixPath
         :return: Name of Checkpoint File
         :rtype: PosixPath
-        '''
+        """
         return self.config['moduli_dir'].joinpath(f'.{path.name}')
 
     @classmethod
     def create_candidate_path(self, key_length: int):
-        '''
+        """
 
         :param key_length: Max Bitlength of Moduli to Process
         :type key_length: int
         :return: Candidate Path
         :rtype: PosixPath
-        '''
+        """
         candidate_path = self.config['moduli_dir'].joinpath(f'{key_length}.candidate_{ISO_UTC_TIMESTAMP()}')
         candidate_path.touch()
         return candidate_path
 
     @classmethod
     def get_screened_path(self, candidate_path: Path) -> Path:
-        '''
+        """
 
         :param candidate_path: Location of Generated Moduli to Screen
         :type candidate_path: PosixPath
         :return: Path of Screened Moduli file
         :rtype: PosixPath
-        '''
+        """
         return candidate_path.parent.joinpath(str(candidate_path.name)
                                               .replace('candidate', 'screened'))
 
     @classmethod
     def screen_candidates(self, candidate_path: Path) -> Path:
-        '''
+        """
 
         :param candidate_path: Location of Generated Moduli to Screen
         :type candidate_path: PosixPath
         :return: Candidate Path
         :rtype: PosixPath
-        '''
+        """
         print(f'Screening {candidate_path} for Safe Primes (generator={self.config["generator_type"]})')
 
         try:
@@ -138,7 +144,7 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def generate_candidates(self, key_length: int, count: int) -> Path:
-        '''
+        """
 
         :param key_length: Max Moduli Key Length
         :type key_length: int
@@ -146,7 +152,7 @@ class ModuliAssembly(ConfigManager):
         :type count: int
         :return: Candidate File Path
         :rtype: PosixPath
-        '''
+        """
         print(f'Generating candidate files for modulus size: {key_length}')
         candidate_file = self.create_candidate_path(key_length)
 
@@ -177,13 +183,13 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def create_moduli_file(self, f_path: Path = None) -> Path:
-        '''
+        """
 
         :param f_path: File Path to Assembled MODULI File
         :type f_path: PosixPath
         :return: Moduli File Path
         :rtype: PosixPath
-        '''
+        """
         if not f_path:
             f_path = self.config['config_dir'].joinpath(self.config['moduli_file'])
 
@@ -218,21 +224,18 @@ class ModuliAssembly(ConfigManager):
 
     @classmethod
     def restart_candidate_screening(self):
-        '''
+        """
         Restart Screening of Any Interrupted Screening of Candidate Modulus Files
-        :return: None
-        :rtype: None
-        '''
+
+        """
         for modulus_file in [moduli for moduli in self.config['moduli_dir'].glob('????.candidate*')]:
             self.screen_candidates(modulus_file)
-            # self.create_moduli_file(modulus_file)
 
     @classmethod
-    def clear_artifacts(self):
-        '''
-        Delete All File Artifacts, Generated and Screened Moduli from .moduli_assembly/.moduli directory
-        :return: None
-        :rtype: None
-        '''
+    def clear_artifacts(self) -> None:
+        """
+        Delete All File Artifacts, Generated and Screened Moduli from `.moduli_assembly/.moduli directory`
+
+        """
         for file in self.config['moduli_dir'].glob('????.*'):
             file.unlink()

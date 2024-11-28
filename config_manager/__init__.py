@@ -15,7 +15,7 @@ _default_pre_config: tuple = (('config_dir', _def_dirname), ('config_file', _def
 
 def default_config() -> dict:
     """
-
+    Provides Sufficient Configuration for Start and Reuse of ConfigManager
     :return: JSON Object (No PATH Parameters as Values)
     :rtype: dict
     """
@@ -87,7 +87,7 @@ def _fs_delete(directory: Path = None) -> Path:
 
 def fs_delete(directory: Path = None) -> None:
     """
-
+    Delete given directory path (mimics rm -rf)
     :param directory:
     :type directory: PosixPath
     :return: None
@@ -103,7 +103,7 @@ class ConfigManager(object):
     @classmethod
     def __init__(cls, config: dict = None, root_dir: Path = None) -> None:
         """
-
+        Create Instance of ConfigManager
         :param config:
         :type config: dict
         :param root_dir: Location of Application Configuration
@@ -132,7 +132,7 @@ class ConfigManager(object):
     @classmethod
     def print_config(cls):
         """
-
+        write current configuration to STDOUT
         :return:
         :rtype: None
         """

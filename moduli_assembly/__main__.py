@@ -56,8 +56,7 @@ def cl_args():
 def main() -> None:
     """
     Main Entry for All Moduli Assembly Operations
-    :return: None
-    :rtype: None
+
     """
     # Process Arguments
     parser = cl_args()
@@ -117,7 +116,7 @@ def main() -> None:
 
         run_bits[key_length] = bitsizes.count(key_length)
 
-    # Generate Candididate Moduli from desired run bits (key_length)
+    # Generate Candidate Moduli from desired run bits (key_length)
     candidates = [cm.generate_candidates(int(key_length), run_bits[key_length])
                   for key_length in run_bits if run_bits[key_length]]
 

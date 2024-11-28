@@ -19,7 +19,7 @@ This is Challenge #2
 A well constructed `ssh/moduli` file will contain a sufficient (approximately 80)
 'safe-primes' for each of five* modulus key lengths: 3072, 4096, 6144, 7680, and 8192.
 After Candidate Generation and Safe Prime Screening, each set of safe-primes have to be concatenated and placed in the
-final ssh/moduli filee.
+final ssh/moduli file.
 This is Challenge #3
 
 \*Bitlengths < 3071 are DROPPED - Reference `Hardening`

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path('..', 'moduli_assembly', 'config_manager').resolve()
 project = 'ssh-moduli-builder'
 copyright = '2024 Ron Williams <becker.williams@gmail.com>'
 author = 'Ron Williams <becker.williams@gmail.com>'
-release = '0.10.11'
+release = '1.0.1'
 
 # -- General configuration ++++++++++++++++++++++++++++++++++++++++++++++++++-
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
