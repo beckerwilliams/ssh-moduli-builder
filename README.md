@@ -6,15 +6,15 @@ Scripts to generate well constructed moduli file
 
 ## Table of Contents
 
-### [Platform Dependencies](#platform-dependencies)
+### [Platform Dependencies](#Platform Dependencies)
 
-### [Installation](#installation)
+### [Installation](#Installation)
 
-### [Usage](#usage)
+### [Usage](#Usage)
 
-### [Utility Scripts](#utility-scripts)
+### [Utility Scripts](#Utility Scripts)
 
-### [License](#mit-license)
+### [License](#MIT License)
 
 ## Platform Dependencies
 
@@ -68,6 +68,7 @@ In a working directory, Create a python virtual environment, install ssh-moduli-
 
 - Create Virtual Environment
     - `python -m venv .venv  # Create Virtual Environment`
+
 - Activate
     - Bash:    `source .venv/bin/activate.sh`
     - C-Shell: `source .venv/bin/activate.csh`
@@ -118,6 +119,14 @@ Example
 `python -m moduli_assembly --write`
 
 - _Writes out SSH MODULI File from Existing Safe Primes_
+
+### --clear_artifacts, -c
+
+Example
+
+`python -m moduli_assembly --clear-artifacts`
+
+* Clears candidate, candidate checkpoint, and screened moduli files from ${MODULI_DIR}
 
 ## Utility Scripts
 
@@ -182,7 +191,9 @@ or
 
 or
 
-`python -m moduli_assembly.scripts.moduli_infile --file <SSH_MODULI_FILE>  # selected moduli file`
+`python -m moduli_assembly.scripts.moduli_infile [-f <SSH_MODULI_FILE>]  # selected moduli file`
+
+* Where default MODULI File is `/etc/ssh/moduli`
 
 ###### Moduli Infile Response
 
@@ -197,7 +208,7 @@ Modulus Frequency of /etc/ssh/moduli:
 
 #### Retrieve last generated MODULI file
 
-`python -m moduli-assembly -M > ssh-moduli`
+`python -m moduli_assembly.scripts.export_moduli_infile > MODULI_FILE`
 
 ### Use Moduli File
 

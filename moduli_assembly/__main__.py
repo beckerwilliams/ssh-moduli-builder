@@ -90,6 +90,9 @@ def main() -> None:
         print(f'Wrote moduli file, {cm.config["moduli_file"]}, and exiting.')
         exit(0)
 
+    if args.moduli_distribution:
+        pass
+
     if args.restart:
         print(f'Restarting candidate screening')
         cm.restart_candidate_screening()

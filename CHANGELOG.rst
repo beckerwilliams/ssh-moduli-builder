@@ -1,12 +1,19 @@
 Changelog
 =========
 
-2024-11-28
+2024-12-13
+__________
+
+* ModuliAssembly: '1.0.2'
+    * Issue 1 - '-c' option Doesn't Clear Candidate Checkpoint Files - FIXED
+~r
+
+2024-11-27
 ----------
 
-* ModuliAssembly: '1.0.1'
-* First 'Production' Release
-~r
+  * ModuliAssembly: '1.0.1'
+    * Release 1.0
+    ~r
 
 2024-11-20
 ----------

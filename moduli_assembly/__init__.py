@@ -6,7 +6,7 @@ from random import shuffle
 
 from config_manager import (ConfigManager)
 
-__version__ = '1.0.1'  # Dependent on pyproject.toml VERSION Manual Sync
+__version__ = '1.0.3'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -160,7 +160,7 @@ class ModuliAssembly(ConfigManager):
             gen_command = []
 
             try:
-                candidates_temp = tempfile.mktemp()
+                _, candidates_temp = tempfile.mkstemp()  # Switching
                 # Generate the prime number of the specified bit length
                 gen_command = [
                     'ssh-keygen',
@@ -175,11 +175,14 @@ class ModuliAssembly(ConfigManager):
                     with open(candidates_temp, 'r') as ct:
                         cf.write(ct.read())
 
+                Path(candidates_temp).unlink()
+
+
             except subprocess.CalledProcessError as e:
                 raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}',
                                                     cmd=gen_command)
 
-        return candidate_file
+                return candidate_file
 
     @classmethod
     def create_moduli_file(self, f_path: Path = None) -> Path:
@@ -234,8 +237,9 @@ class ModuliAssembly(ConfigManager):
     @classmethod
     def clear_artifacts(self) -> None:
         """
-        Delete All File Artifacts, Generated and Screened Moduli from `.moduli_assembly/.moduli directory`
 
+        :return: None
+        :rtype: None
         """
-        for file in self.config['moduli_dir'].glob('????.*'):
+        for file in self.config['moduli_dir'].glob('*'):
             file.unlink()

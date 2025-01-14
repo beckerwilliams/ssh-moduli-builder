@@ -32,11 +32,11 @@ https://github.com/beckerwilliams/ssh-moduli-builder/raw/main/dist/moduli_assemb
 
 `./moduli_builder.sh > mod.gen.log 2>&1 &`
 
-## When Complete, Check Frequency Distributio of Created Moduli
+## When Complete, Display Frequency Distribution of Created Moduli
 
-`python -m moduli_assembly.scripts.moduli_infile -f ${MODULI_ASSEMBLY_DIR}/MODULI_FILE`
+`python -m moduli_assembly.scripts.moduli_infile [-f ${MODULI_ASSEMBLY_DIR}/MODULI_FILE`]
 
-- where `${MODULI_ASSEMBLY_DIR} is ${HOME}/.moduli_assembly by default`
+- where `${MODULI_ASSEMBLY_DIR} is ${HOME}/.moduli_assembly/MODULI_FILE by default`
 
 
 
