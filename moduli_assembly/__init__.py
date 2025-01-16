@@ -6,7 +6,7 @@ from random import shuffle
 
 from config_manager import (ConfigManager)
 
-__version__ = '1.0.3'  # Dependent on pyproject.toml VERSION Manual Sync
+__version__ = '1.0.4'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -177,22 +177,22 @@ class ModuliAssembly(ConfigManager):
 
                 Path(candidates_temp).unlink()
 
-
             except subprocess.CalledProcessError as e:
                 raise subprocess.CalledProcessError(f'Error generating {key_length}-bit prime: {e}',
                                                     cmd=gen_command)
 
-                return candidate_file
+        return candidate_file
 
     @classmethod
     def create_moduli_file(self, f_path: Path = None) -> Path:
         """
 
-        :param f_path: File Path to Assembled MODULI File
-        :type f_path: PosixPath
-        :return: Moduli File Path
-        :rtype: PosixPath
+        :param f_path:
+        :type f_path:
+        :return:
+        :rtype:
         """
+
         if not f_path:
             f_path = self.config['config_dir'].joinpath(self.config['moduli_file'])
 
@@ -238,8 +238,8 @@ class ModuliAssembly(ConfigManager):
     def clear_artifacts(self) -> None:
         """
 
-        :return: None
-        :rtype: None
+        :return:
+        :rtype:
         """
         for file in self.config['moduli_dir'].glob('*'):
             file.unlink()

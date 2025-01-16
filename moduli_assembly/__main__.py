@@ -125,10 +125,10 @@ def main() -> None:
 
     # Log Screened File Paths
     with cm.config["config_dir"].joinpath('screened-files.txt').open('a') as cf:
-        [cf.write(f'Screened File: {cm.get_screened_path(candidate)}\n') for candidate in candidates]
+        [cf.write(f'Screened File: {cm.get_screened_path(candidate)}\n') for candidate in candidates if candidate]
 
     # Screen Candidates
-    [cm.screen_candidates(candidate) for candidate in candidates]
+    [cm.screen_candidates(candidate) for candidate in candidates if candidate]
 
     # Create /etc/ssh/moduli file
     cm.create_moduli_file()
