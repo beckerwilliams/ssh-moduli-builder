@@ -18,12 +18,11 @@ ssh-moduli-builder
 
     RATIONALE
     LICENSE
-    CHANGELOG
 
     .github/ISSUE_TEMPLATE/bug_report
     .github/ISSUE_TEMPLATE/feature_request
 
-
+    CHANGELOG
 
 
 
