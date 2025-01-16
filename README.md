@@ -6,17 +6,15 @@ Scripts to generate well constructed moduli file
 
 ## Table of Contents
 
-### [Platform Dependencies](#Platform Dependencies)
+### [Platform Dependencies](#platform-dependencies)
 
-### [Installation](#Installation)
+### [Installation](#installation)
 
-### [Usage](#Usage)
+### [Usage](#usage)
 
-### [Utility Scripts](#Utility Scripts)
+### [Utility Scripts](#utility-scripts)
 
-### [License](#MIT License)
-
-## Platform Dependencies
+### [License](#mit-license)
 
 - OpenSSH2 ssh-keygen, _supports `-M generate` and `-M screen`_
 
@@ -246,7 +244,9 @@ or
 
 ### MIT License
 
-Copyright (c) 2024 Ron Williams, General Partner, Becker Williams Trading General Partnership
+[MIT License](#LICENSE)
+
+#Copyright (c) 2024, 2025 Ron Williams, General Partner, Becker Williams Trading General Partnership
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
