@@ -6,7 +6,7 @@ from random import shuffle
 
 from config_manager import (ConfigManager)
 
-__version__ = '1.0.6'  # Dependent on pyproject.toml VERSION Manual Sync
+__version__ = '1.0.7'  # Dependent on pyproject.toml VERSION Manual Sync
 
 
 def ISO_UTC_TIMESTAMP() -> str:
@@ -26,7 +26,7 @@ def default_config() -> dict:
     """
     return {
         'generator_type': 2,
-        'auth_bitsizes': ['3072', '4096', '6144', '7680', '8192'],
+        'auth_bitsizes': [3072, 4096, 6144, 7680, 8192],
         'config_dir': '.moduli_assembly',
         'config_file': '.config',
         'moduli_dir': '.moduli',
@@ -138,7 +138,8 @@ class ModuliAssembly(ConfigManager):
             exit(1)
 
         # We've screened the Candidates, Discard File
-        candidate_path.unlink()
+        if candidate_path.exists():  # Address Issue 1, unlink of non-existant file **Fixed?***
+            candidate_path.unlink()
 
         return self.get_screened_path(candidate_path)
 

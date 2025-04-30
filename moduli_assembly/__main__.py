@@ -1,138 +1,123 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
-from pathlib import PosixPath as Path
+import argparse
+from pathlib import Path
+from typing import Dict, List, Optional
 
-from moduli_assembly.__init__ import (ModuliAssembly)
+from moduli_assembly import ModuliAssembly  # Assuming this is correct, adjust if necessary
+from moduli_assembly.scripts.moduli_infile import main as moduli_infile
 
 
-def cl_args():
+def cl_args() -> argparse.ArgumentParser:
     """
+    Set up command-line arguments for the Moduli Assembly utility.
 
-    :return: Argument Parser
-    :rtype: ArgumentParser
+    :return: Configured ArgumentParser
     """
-    parser = ArgumentParser(prog='Moduli Assembly', description='Utility to automate creation of SSH2 Moduli Files')
-    parser.add_argument('-b', '--bitsizes',
-                        nargs='*',
-                        help='space delimited list of requested bitsizes\n\t-b <keylength0> <keylength2> ...', )
-    parser.add_argument('-m', '--moduli-dir',
-                        default=Path.home().joinpath('.moduli-assembly'),
-                        help='Specify location of ./moduli-assembly')
-    parser.add_argument('-f', '--config_file',
-                        default=Path.home().joinpath(".moduli-assembly/config_file"),
-                        help='Select Moduli File Path, default=$HOME/.moduli-assembly')
-    # Just Flags, Execute and Exit
-    parser.add_argument('-a', '--all',
-                        action='store_true',
-                        help='Minimally Sufficient and Safe Moduli File. (Run Four in Parallel)!')
-    parser.add_argument('-c', '--clear-artifacts',
-                        action='store_true',
-                        help='Clear Files: generated candidate and screening files.')
-    parser.add_argument('-C', '--remove-config-dir',
-                        action='store_true',
-                        help='Delete Configuration Directory (config_dir)')
-    parser.add_argument('-w', '--write_moduli',
-                        action='store_true',
-                        help='Write Moduli from Current Screened Files and Exit')
-    parser.add_argument('-r', '--restart',
-                        action='store_true',
-                        help='Restart Interrupted Moduli Screening. Ignores `-b <modulus size>`')
-    parser.add_argument('-M', '--get-moduli-file',
-                        action='store_true',
-                        help='Dump Latest Moduli File to STDOUT')
-    parser.add_argument('-V', '--version',
-                        action='store_true',
-                        help='Display moduli-assembly version')
-    parser.add_argument('-D', '--moduli-distribution',
-                        action='store_true',
-                        help='-D, --model-distribution: Print Frequency Distribution of Given Moduli File')
-    parser.add_argument('-x', '--export-config',
-                        action='store_true',
-                        help="Print running configuration")
+    parser = argparse.ArgumentParser(prog='Moduli Assembly',
+                                     description='Utility to automate creation of SSH2 Moduli Files')
+    parser.add_argument('-b', '--bitsizes', nargs='*', type=int, help='Space-delimited list of requested bitsizes')
+    parser.add_argument('-m', '--moduli-dir', default=Path.home() / '.moduli-assembly', type=Path,
+                        help='Specify location of .moduli-assembly directory')
+    parser.add_argument('-f', '--config-file', default=Path.home() / '.moduli-assembly' / 'config_file', type=Path,
+                        help='Select Moduli File Path, default=$HOME/.moduli-assembly/config_file')
+    parser.add_argument('-a', '--all', action='store_true',
+                        help='Generate minimally sufficient and safe moduli file (run four in parallel).')
+    parser.add_argument('-c', '--clear-artifacts', action='store_true',
+                        help='Clear generated candidate and screening files.')
+    parser.add_argument('-C', '--remove-config-dir', action='store_true', help='Delete configuration directory.')
+    parser.add_argument('-w', '--write-moduli', action='store_true',
+                        help='Write moduli from current screened files and exit.')
+    parser.add_argument('-r', '--restart', action='store_true',
+                        help='Restart interrupted moduli screening. Ignores `-b `.')
+    parser.add_argument('-M', '--get-moduli-file', action='store_true', help='Dump latest moduli file to STDOUT.')
+    parser.add_argument('-V', '--version', action='store_true', help='Display moduli-assembly version.')
+    parser.add_argument('-D', '--moduli-distribution', action='store_true',
+                        help='Print frequency distribution of the given moduli file.')
+    parser.add_argument('-x', '--export-config', action='store_true', help="Print running configuration.")
     return parser
 
 
 def main() -> None:
     """
-    Main Entry for All Moduli Assembly Operations
-
+    Main entry point for all Moduli Assembly operations.
     """
-    # Process Arguments
     parser = cl_args()
     args = parser.parse_args()
 
-    # Process Configuration File
     cm = ModuliAssembly()
-
-    # Functions by Argument(s)
 
     if args.version:
         print(f'{parser.prog}: Version: {cm.version}')
-        exit(0)
+        return
 
-    if args.clear_artifacts:  # Delete and Recreate '.moduli'
-        cm.clear_artifacts()
-        exit(0)
+    if args.clear_artifacts:
+        try:
+            cm.clear_artifacts()
+        except Exception as e:
+            print(f"Error clearing artifacts: {e}")
+        return
 
     if args.remove_config_dir:
-        del cm
-        exit(0)
+        try:
+            del cm
+        except Exception as e:
+            print(f"Error removing config directory: {e}")
+        return
 
-        # Dump Latest config_file to STDOUT
     if args.export_config:
         cm.print_config()
-        exit(0)
+        return
 
-    # We always write the MODULI file when done - Here we ONLY Write Current based on MODULI/*.screened*
     if args.write_moduli:
-        cm.create_moduli_file(cm.config['moduli_file'])
-        print(f'Wrote moduli file, {cm.config["moduli_file"]}, and exiting.')
-        exit(0)
+        try:
+            cm.create_moduli_file(cm.config['moduli_file'])
+            print(f'Wrote moduli file to {cm.config["moduli_file"]} and exiting.')
+        except Exception as e:
+            print(f"Error writing moduli file: {e}")
+        return
 
     if args.moduli_distribution:
-        pass
+        moduli_infile()
+        # cm.print_moduli_distribution()
+        return
 
     if args.restart:
-        print(f'Restarting candidate screening')
+        print('Restarting candidate screening')
         cm.restart_candidate_screening()
         cm.create_moduli_file()
-        exit(0)
+        return
 
-    if args.all:
-        bitsizes = list(cm.config['auth_bitsizes'])
-    elif args.bitsizes:
-        bitsizes = args.bitsizes
-    else:
-        print(f'ERROR: No bitsizes, You must Select One Argument Type moduli_assembly.py [-a, -b, -r, -w]')
-        exit(1)
+    bitsizes = args.bitsizes if args.bitsizes else list(cm.config['auth_bitsizes']) if args.all else None
+    if not bitsizes:
+        print('ERROR: No bitsizes specified. Use -a, -b, -r, or -w.')
+        return
 
-    bitsizes.sort()  # We'll run in Increasing Order. The opposite (.reverse()) will take the LONGEST runs, first
+    bitsizes.sort()
 
-    run_bits = {}
+    run_bits: Dict[int, int] = {}
     for key_length in bitsizes:
-
         if key_length not in cm.config['auth_bitsizes']:
-            print(f'Bitsize: {key_length} is not Enabled')
-            print('Enabled Bitsizes: "[-b 3072 4096 6144 7680 8192]"')
-            exit(1)
+            print(f'Bitsize {key_length} is not enabled. Available: {cm.config["auth_bitsizes"]}')
+            return
+        run_bits[key_length] = run_bits.get(key_length, 0) + 1
 
-        run_bits[key_length] = bitsizes.count(key_length)
+    candidates: List[Optional[Path]] = []
+    for key_length, count in run_bits.items():
+        candidates.extend([cm.generate_candidates(key_length, count) for _ in range(count)])
 
-    # Generate Candidate Moduli from desired run bits (key_length)
-    candidates = [cm.generate_candidates(int(key_length), run_bits[key_length])
-                  for key_length in run_bits if run_bits[key_length]]
+    screened_file_path = cm.config["config_dir"] / 'screened-files.txt'
+    with screened_file_path.open('a') as cf:
+        for candidate in candidates:
+            if candidate:
+                cf.write(f'Screened File: {cm.get_screened_path(candidate)}\n')
 
-    # Log Screened File Paths
-    with cm.config["config_dir"].joinpath('screened-files.txt').open('a') as cf:
-        [cf.write(f'Screened File: {cm.get_screened_path(candidate)}\n') for candidate in candidates if candidate]
+    for candidate in candidates:
+        if candidate:
+            cm.screen_candidates(candidate)
 
-    # Screen Candidates
-    [cm.screen_candidates(candidate) for candidate in candidates if candidate]
-
-    # Create /etc/ssh/moduli file
     cm.create_moduli_file()
 
 
 if __name__ == '__main__':
-    exit(main())
+    main()
