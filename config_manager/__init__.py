@@ -15,7 +15,7 @@ _default_pre_config: tuple = (('config_dir', _def_dirname), ('config_file', _def
 
 def default_config() -> dict:
     """
-    Provides Sufficient Configuration for Start and Reuse of ConfigManager
+
     :return: JSON Object (No PATH Parameters as Values)
     :rtype: dict
     """
@@ -32,18 +32,16 @@ def _path_parameters() -> list:
 
 
 def _enable_path_properties(config: dict, root_dir=None) -> dict:
+    if not root_dir:
+        root_dir = Path.home()
+
     """
     Converts Config Manager File format to Runtime Configuration
-
     :param config: Runtime Configuration
     :type config: dict
     :return: Configuration in File Format
     :rtype: dict
-
     """
-    if not root_dir:
-        root_dir = Path.home()
-
     new_config = dict()
     for prop in config:
         if prop in _path_parameters():
@@ -86,13 +84,6 @@ def _fs_delete(directory: Path = None) -> Path:
 
 
 def fs_delete(directory: Path = None) -> None:
-    """
-    Delete given directory path (mimics rm -rf)
-    :param directory:
-    :type directory: PosixPath
-    :return: None
-    :rtype: None
-    """
     _fs_delete(directory)
     if directory.is_dir():
         directory.rmdir()
@@ -102,13 +93,6 @@ class ConfigManager(object):
 
     @classmethod
     def __init__(cls, config: dict = None, root_dir: Path = None) -> None:
-        """
-        Create Instance of ConfigManager
-        :param config:
-        :type config: dict
-        :param root_dir: Location of Application Configuration
-        :type root_dir: PosixPath
-        """
 
         if not root_dir:
             root_dir = Path.home()
@@ -129,11 +113,12 @@ class ConfigManager(object):
             cls.config = _enable_path_properties(config)
             config_file.write_text(dumps(_disable_path_properties(cls.config)))
 
+    # The Config Directory will be deleted when using program implements if this __del__ is implemented
+    @classmethod
+    def __del__(cls) -> None:
+        if cls.config['config_dir'].exists():
+            fs_delete(cls.config['config_dir'])
+
     @classmethod
     def print_config(cls):
-        """
-        write current configuration to STDOUT
-        :return:
-        :rtype: None
-        """
         print(f'{cls.config}')

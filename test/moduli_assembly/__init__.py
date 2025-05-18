@@ -15,7 +15,7 @@ def _load_candidate(target_moduli_dir: Path = None) -> Path:
     if not target_moduli_dir:
         target_moduli_dir = Path.home().joinpath('.moduli_assembly', '.moduli')
 
-    # Resource File MAINTENANCE - Lets keep the LAST 8 Candidates produced - delete the remaining
+    # Resource File MAINTENANCE - Let's keep the LAST 8 Candidates produced - delete the remaining
     candidates = [file for file in Path('test/resources').glob('????.candidate*')]
     if len(candidates) > 7:
         # We'll keep 7 versions of Candidate File around - refreshed every test
@@ -25,14 +25,14 @@ def _load_candidate(target_moduli_dir: Path = None) -> Path:
         # Refresh List after Elimination of List Elements
         candidates = [file for file in Path('test/resources').glob('????.candidate*')]
 
-    # Grab First Avaialble Canidate File
+    # Grab First Available Candidate File
     candidate = candidates[0]
 
     # Copy contents of RESOURCE file to RUNTIME file
     target_moduli_dir.joinpath(candidate.name).write_text(candidate.read_text())
 
     # Create 'In-Progress' Checkpoint File for Screening Operations
-    # - We use 50000 as the STARTING line in the Modulus File, which gives about 6000 to screen. [OPTIMIZATION]
+    # - We use 50,000 as the STARTING line in the Modulus File, which gives about 6000 to screen. [OPTIMIZATION]
     target_moduli_dir.joinpath(f'.{candidate.name}').write_text('50000\n')
     return target_moduli_dir.joinpath(candidate.name)
 
@@ -76,7 +76,7 @@ class TestModuliAssembly(TestCase):
     def test_get_screened_path(cls):
         key_length = 2048
         cp = cls.ma_real.create_candidate_path(key_length)
-        # Get screened path, convert to candidate and compare to given candidate file
+        # Get a screened path, convert to a candidate and compare to a given candidate file
         cls.assertTrue(str(cp.parent.joinpath(cls.ma_real.get_screened_path(cp)))
                        .replace('screened', 'candidate') == str(cp.absolute()))
 
@@ -84,7 +84,7 @@ class TestModuliAssembly(TestCase):
         with patch('moduli_assembly.ModuliAssembly.generate_candidates',
                    return_value=cls.test_candidate_path) as mocked_generate_candidates:
             # candidate_file = cls.ma.generate_candidates()
-            candidate_file = mocked_generate_candidates()
+            # candidate_file = mocked_generate_candidates()
             mocked_generate_candidates.assert_called_once_with()
             cls.assertIn(cls.test_candidate_path,
                          cls.ma_real.generate_candidates(2048, 1))
