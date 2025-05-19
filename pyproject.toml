@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "moduli_assembly"
-version = "1.0.8"
+version = "1.0.10"
 description = "Command Line Utility to build complete [/usr/local]/etc/ssh/moduli_file]"
 authors = ["Ron Williams <becker.williams@gmail.com>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
+pytest = "^8.3.5"
 
 [tool.poetry.scripts]
 main = "moduli_assembly.__main__:main"
