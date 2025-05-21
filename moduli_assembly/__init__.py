@@ -235,15 +235,14 @@ class ModuliAssembly(ConfigManager):
         f_path.symlink_to(path)
 
         moduli_files = sorted(self.config['moduli_dir'].glob('????.screened*'))
-        content = [f'#/etc/ssh/moduli: moduli_assembly: {ts}\n']
+        content = [f'#/etc/ssh/moduli: creation_date: moduli_assembly: {ts}']
 
         for modulus_file in moduli_files:
             lines = modulus_file.read_text().strip().split('\n')
             shuffle(lines)
             content.extend(lines)
-            content.append('\n')
 
-        path.write_text(''.join(content))
+        path.write_text('\n'.join(content))
         return path
 
     def restart_candidate_screening(self):
@@ -256,9 +255,9 @@ class ModuliAssembly(ConfigManager):
 
     def clear_artifacts(self) -> None:
         """
-
-        :return:
-        :rtype:
+        Removes all files present in the directory specified in the configuration
+        under the key 'moduli_dir'. This method iterates through all files in the 
+        given directory and deletes them one by one.
         """
         for file in self.config['moduli_dir'].glob('*'):
             file.unlink()
